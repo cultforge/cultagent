@@ -1,0 +1,52 @@
+# CultForge Agent — example configuration
+# Copy to config.yaml or set CULTAGENT_CONFIG to an absolute path.
+#
+# Workers live on subdomains. Apex cultforge.com is static (no agent UI).
+
+agent:
+  display_name: ""          # optional friendly name for this node
+  data_dir: ""              # empty = platform default (platformdirs)
+
+cloud:
+  auth_base: "https://auth.cultforge.com"
+  api_base: "https://api.cultforge.com"
+  invite_base: "https://invite.cultforge.com"
+  guilds_base: "https://guilds.cultforge.com"
+  # --- Local cult_core2 (only when developing against a local checkout) ---
+  # auth_base: "http://localhost:8072"
+  # api_base: "http://localhost:8071"
+  # invite_base: "http://localhost:8073"
+  # guilds_base: "http://localhost:8074"
+  poll_interval_seconds: 15
+  telemetry_interval_seconds: 15
+  control_plane_enabled: true
+  # Prefer WebSocket when api…/manifest.json advertises an agent WS route; else HTTPS poll.
+  realtime_enabled: true
+
+local:
+  # Local management API is loopback-only by default.
+  bind_host: "127.0.0.1"
+  bind_port: 8720
+  auto_start_servers: false
+
+servers:
+  root_dir: ""              # empty = <data_dir>/servers
+  java_path: ""             # empty = auto-detect
+
+network:
+  default_provider: "direct"  # direct | playit
+  playit:
+    enabled: false
+    auto_start: false
+    target_host: "127.0.0.1"
+    target_port: 25565
+    binary_path: ""           # empty = managed download under data_dir/playit/bin
+
+content:
+  modrinth:
+    api_base: "https://api.modrinth.com/v2"
+    user_agent: "CultForge-Agent/0.1 (cf-agent)"
+
+logging:
+  level: "INFO"
+  file: ""

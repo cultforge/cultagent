@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Metrics · {{ server.name }}{% endblock %}
+{% block page_title %}Metrics · {{ server.name }}{% endblock %}
+{% block content %}
+{% set cpu = metrics.cpu_percent if metrics.cpu_percent is not none else 0 %}
+{% set mem = metrics.memory_percent if metrics.memory_percent is not none else 0 %}
+<div class="grid stats">
+  <div class="cf-panel card cf-stat-card">
+    <h2>Process</h2>
+    <div class="cf-stat stat-value" style="font-size:1.2rem">{{ status.state }}</div>
+    <div class="stat-label">pid {{ status.pid or '—' }} · uptime {{ status.uptime_seconds or '—' }}s</div>
+  </div>
+  <div class="cf-panel card cf-stat-card">
+    <h2>Host CPU</h2>
+    <div class="cf-stat stat-value">{{ metrics.cpu_percent | default('—') }}%</div>
+    <div class="cf-meter {% if cpu >= 85 %}danger{% elif cpu >= 65 %}warn{% endif %}"><span style="width: {{ [cpu, 100] | min }}%"></span></div>
+  </div>
+  <div class="cf-panel card cf-stat-card">
+    <h2>Host memory</h2>
+    <div class="cf-stat stat-value">{{ metrics.memory_percent | default('—') }}%</div>
+    <div class="cf-meter {% if mem >= 85 %}danger{% elif mem >= 65 %}warn{% endif %}"><span style="width: {{ [mem, 100] | min }}%"></span></div>
+  </div>
+</div>
+<pre class="cf-panel card mono" style="margin-top:1rem; overflow:auto">{{ metrics | tojson(indent=2) }}</pre>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}{{ server.name }} · CultAgent{% endblock %}
+{% block content %}
+{% set cpu = metrics.cpu_percent if metrics.cpu_percent is not none else 0 %}
+{% set mem = metrics.memory_percent if metrics.memory_percent is not none else 0 %}
+{% set disk = metrics.disk_percent if metrics.disk_percent is not none else 0 %}
+{% set running = status.state == 'running' %}
+{% set players = status.players if status.players is not none else 0 %}
+{% set maxp = status.max_players if status.max_players is not none else '—' %}
+
+{% include "server/_tabs.html" %}
+
+<div class="cf-toolbar">
+  <div class="cf-crumbs">
+    <a href="/panel/servers">Servers</a>
+    <span class="sep">›</span>
+    <span class="cur">{{ server.name }}</span>
+  </div>
+</div>
+
+{# Crafty control cluster + Aternos join #}
+<section class="cf-play-hero cf-play-hero-compact">
+  <div class="cf-play-hero-main">
+    <div class="cf-play-status-row">
+      <span class="cf-play-dot {% if running %}on{% elif status.state == 'crashed' %}err{% endif %}"></span>
+      <div>
+        <h1>{{ server.name }}
+          {% if scope == 'guild' %}<span class="cf-badge scope guild">Guild server</span>{% elif scope == 'personal' %}<span class="cf-badge scope personal">Personal cloud</span>{% elif scope == 'local' %}<span class="cf-badge scope local">Local</span>{% endif %}
+        </h1>
+        <p class="desc">{{ server.loader }}{% if server.minecraft_version %} · {{ server.minecraft_version }}{% endif %}</p>
+      </div>
+    </div>
+    <div class="cf-play-meta">
+      <span>Status <strong class="{% if running %}live{% endif %}">{% if running %}● Online{% else %}{{ status.state }}{% endif %}</strong></span>
+      <span>Uptime <strong>{{ uptime_label }}</strong></span>
+      <span>Players <strong>{{ players }} / {{ maxp }}</strong></span>
+      <span>PID <strong>{{ status.pid or '—' }}</strong></span>
+    </div>
+    <div class="cf-controls">
+      {% if running %}
+      <button class="cf-btn btn danger cf-btn-xl" data-server-id="{{ server.server_id }}" data-server-action="stop">Stop</button>
+      <button class="cf-btn btn cf-btn-xl" data-server-id="{{ server.server_id }}" data-server-action="restart">Restart</button>
+      {% else %}
+      <button class="cf-btn btn primary cf-btn-xl" data-server-id="{{ server.server_id }}" data-server-action="start">Start</button>
+      {% endif %}
+      <a class="cf-btn btn ghost" href="/panel/servers/{{ server.server_id }}/console">Terminal</a>
+      <a class="cf-btn btn ghost" href="/panel/servers/{{ server.server_id }}/files">Files</a>
+      <a class="cf-btn btn ghost" href="/panel/servers/{{ server.server_id }}/backups">Backups</a>
+    </div>
+  </div>
+  <div class="cf-join-card">
+    <h2>Join address</h2>
+    <p class="cf-join-primary mono" id="joinPrimary">{{ join.primary if join else ('localhost:' ~ server.port) }}</p>
+    <button type="button" class="cf-btn btn primary" data-copy="#joinPrimary">Copy address</button>
+    <dl class="cf-kv compact" style="margin-top:0.85rem">
+      <dt>This PC</dt>
+      <dd class="mono">{{ join.localhost if join else ('localhost:' ~ server.port) }}</dd>
+      {% if join and join.lan %}
+      <dt>LAN</dt>
+      <dd class="mono">{{ join.lan }}</dd>
+      {% endif %}
+      {% if join and join.public %}
+      <dt>Online</dt>
+      <dd class="mono">{{ join.public }}</dd>
+      {% else %}
+      <dt>Online</dt>
+      <dd class="muted"><a href="/panel/network">Enable playit</a></dd>
+      {% endif %}
+    </dl>
+  </div>
+</section>
+
+<div class="grid metrics5" style="margin-top:0.75rem">
+  <div class="cf-panel">
+    <h2>CPU</h2>
+    <div class="cf-stat">{{ metrics.cpu_percent | default('—') }}{% if metrics.cpu_percent is not none %}%{% endif %}</div>
+    <div class="cf-meter"><span style="width: {{ [cpu, 100] | min }}%"></span></div>
+  </div>
+  <div class="cf-panel">
+    <h2>RAM</h2>
+    <div class="cf-stat">{{ metrics.memory_percent | default('—') }}{% if metrics.memory_percent is not none %}%{% endif %}</div>
+    <div class="stat-label">{{ metrics.memory_used_gb | default('—') }} / {{ metrics.memory_total_gb | default('—') }} GB</div>
+    <div class="cf-meter"><span style="width: {{ [mem, 100] | min }}%"></span></div>
+  </div>
+  <div class="cf-panel">
+    <h2>Disk</h2>
+    <div class="cf-stat">{{ metrics.disk_percent | default('—') }}{% if metrics.disk_percent is not none %}%{% endif %}</div>
+    <div class="cf-meter"><span style="width: {{ [disk, 100] | min }}%"></span></div>
+  </div>
+  <div class="cf-panel">
+    <h2>Process</h2>
+    <div class="cf-stat" style="font-size:1.1rem">{{ status.state }}</div>
+    <div class="stat-label">pid {{ status.pid or '—' }}</div>
+  </div>
+  <div class="cf-panel">
+    <h2>Port</h2>
+    <div class="cf-stat" style="font-size:1.05rem">:{{ server.port }}</div>
+    <div class="stat-label">{{ join.provider if join else 'direct' }}</div>
+  </div>
+</div>
+
+<div class="grid mid3" style="margin-top:0.75rem">
+  <div class="cf-panel">
+    <h2>Server information</h2>
+    <dl class="cf-kv">
+      <dt>Type</dt><dd>{{ server.loader }}</dd>
+      <dt>Version</dt><dd>{{ server.minecraft_version or '—' }}</dd>
+      <dt>Mods</dt><dd>{{ mod_count }}</dd>
+      <dt>Auto-start</dt><dd>{{ 'yes' if server.auto_start else 'no' }}</dd>
+      <dt>Crash restart</dt><dd>{{ 'yes' if server.auto_restart else 'no' }}</dd>
+      <dt>Path</dt><dd class="mono muted">{{ server.path }}</dd>
+      <dt>ID</dt><dd class="mono">{{ server.server_id }}</dd>
+    </dl>
+    <div class="actions" style="margin-top:0.9rem">
+      <a class="cf-btn btn" href="/panel/servers/{{ server.server_id }}/config">Edit config</a>
+      <a class="cf-btn btn" href="/panel/servers/{{ server.server_id }}/mods">Mods</a>
+      <a class="cf-btn btn" href="/panel/builds">Guild builds</a>
+    </div>
+  </div>
+
+  <div class="cf-panel cf-console-card">
+    <h2>Recent console</h2>
+    <div class="cf-console-live" id="overviewConsole">{% for line in console_lines %}{% set text = line if line is string else (line.text or '') %}{{ text }}{% if not text.endswith('\n') %}
+{% endif %}{% endfor %}</div>
+    <div class="cf-console-row">
+      <input class="cf-console-input" id="overviewConsoleInput" placeholder="Type a command…" autocomplete="off" />
+      <button class="cf-btn btn primary" id="overviewConsoleSend" type="button">Send</button>
+    </div>
+  </div>
+
+  <div class="cf-panel">
+    <div class="cf-page-head" style="margin-bottom:0.35rem">
+      <h2 style="margin:0">Backups</h2>
+      <a class="cf-btn btn" href="/panel/servers/{{ server.server_id }}/backups">View all</a>
+    </div>
+    {% if not backups %}
+    <p class="cf-empty-soft">No backups yet.</p>
+    {% else %}
+    <div class="cf-list">
+      {% for b in backups %}
+      <div class="cf-list-row">
+        <div class="left">
+          <span class="title mono">{{ b.name }}</span>
+          <span class="sub">{{ b.mtime }} · {{ b.size }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="actions" style="margin-top:0.75rem">
+      <a class="cf-btn btn" href="/panel/servers/{{ server.server_id }}/files">Open files</a>
+      <a class="cf-btn btn" href="/panel/servers/{{ server.server_id }}/admin">Admin</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  window.SERVER_ID = {{ server.server_id | tojson }};
+  (function () {
+    const box = document.getElementById("overviewConsole");
+    const input = document.getElementById("overviewConsoleInput");
+    const send = document.getElementById("overviewConsoleSend");
+    if (box) box.id = "console";
+    if (input) input.id = "consoleInput";
+    if (send) send.id = "consoleSend";
+  })();
+</script>
+<script src="/static/js/console.js"></script>
+{% endblock %}

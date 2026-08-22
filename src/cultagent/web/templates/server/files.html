@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Files · {{ server.name }}{% endblock %}
+{% block page_title %}Files · {{ server.name }}{% endblock %}
+{% block content %}
+<div class="cf-panel card">
+  <div class="files-path" id="filesPath">.</div>
+  <div id="filesRoot" class="empty">Loading…</div>
+</div>
+<div class="cf-panel card" id="fileEditorCard" hidden style="margin-top:1rem">
+  <h2>Edit file</h2>
+  <input type="hidden" id="fileEditorPath" />
+  <textarea id="fileEditor"></textarea>
+  <div class="actions" style="margin-top:0.75rem">
+    <button class="cf-btn btn primary" id="fileSave">Save</button>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>window.SERVER_ID = {{ server.server_id | tojson }};</script>
+<script src="/static/js/files.js"></script>
+{% endblock %}

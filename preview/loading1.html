@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logo Loading Animation</title>
+  <style>
+    /* Setting up the dark canvas */
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #0B0B10;
+      overflow: hidden;
+    }
+
+    .loader-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+    }
+
+    /* Base styling for the image */
+    .logo {
+      width: 180px; /* Adjust based on your preferred size */
+      height: auto;
+      /* Initial soft glow */
+      filter: drop-shadow(0 0 10px rgba(0, 255, 120, 0.2)); 
+    }
+
+    /* Clean, muted loading text */
+    .loading-text {
+      color: #B8B6CC; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      letter-spacing: 4px;
+      font-size: 14px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="loader-container">
+    <img src="logo-abstract.png" alt="Loading Logo" class="logo">
+    <div class="loading-text">Loading</div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  
+  <script>
+    // 1. Logo Animation: Hover, scale, and glowing pulse
+    anime({
+      targets: '.logo',
+      translateY: [-12, 12], // Hovers up and down
+      scale: [0.97, 1.03],   // Slight breathing effect
+      filter: [
+        'drop-shadow(0 0 10px rgba(0, 255, 120, 0.1))',
+        'drop-shadow(0 0 35px rgba(0, 255, 120, 0.7))' // Intense glow at the peak
+      ],
+      direction: 'alternate', // Reverses smoothly
+      loop: true,             // Runs infinitely
+      easing: 'easeInOutSine', // Smooth deceleration at the top and bottom
+      duration: 1500          // 1.5 seconds per directional movement
+    });
+
+    // 2. Text Animation: Gentle fade to keep attention on the logo
+    anime({
+      targets: '.loading-text',
+      opacity: [0.2, 1],
+      direction: 'alternate',
+      loop: true,
+      easing: 'easeInOutSine',
+      duration: 1000
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Cloud · CultAgent{% endblock %}
+{% block content %}
+<div class="cf-hero">
+  <div class="cf-hero-left">
+    <img class="cf-hero-icon" src="/static/img/logo-disc.png" alt="" />
+    <div>
+      <h1>Cloud Link</h1>
+      <p class="desc">CultForge control-plane identity for this agent node.</p>
+      <div class="cf-tags">
+        <span class="cf-tag">Guild surface</span>
+        <span class="cf-tag">{{ identity.status or '—' }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="cf-panel" style="max-width:720px">
+  <h2>CultForge link</h2>
+  <dl class="cf-kv cloud">
+    <dt>Registered</dt>
+    <dd>{{ 'yes' if identity.registered else 'no' }}</dd>
+    <dt>Status</dt>
+    <dd>
+      <span class="cf-badge badge {% if identity.status == 'online' or identity.status == 'registered' %}ok{% elif identity.status == 'error' %}danger{% endif %}">{{ identity.status or '—' }}</span>
+    </dd>
+    <dt>Node</dt>
+    <dd class="mono">{{ identity.cloud_node_id or identity.node_id or '—' }}</dd>
+    <dt>Owner</dt>
+    <dd class="mono">{{ identity.owner_account_id or '—' }}</dd>
+    <dt>Guild</dt>
+    <dd class="mono guild">{{ identity.guild_id or 'none' }}</dd>
+    <dt>API</dt>
+    <dd class="mono">{{ cloud.api_base }}</dd>
+    <dt>Transport</dt>
+    <dd>
+      {% set t = cloud.transport or {} %}
+      {% if t.mode == 'websocket' and t.connected %}
+        <span class="cf-badge badge ok">websocket</span>
+        <span class="mono">{{ t.ws_path or '' }}</span>
+      {% else %}
+        <span class="cf-badge badge">https poll</span>
+        <span class="dim">every {{ cloud.poll_interval_seconds }}s</span>
+      {% endif %}
+    </dd>
+    <dt>Auto-switch</dt>
+    <dd>{{ 'on' if cloud.realtime_enabled else 'off' }} — upgrades to WebSocket when the API advertises it</dd>
+  </dl>
+  <p class="cf-hint">Remote commands arrive while <code>cf-agent run</code> is up. This panel is loopback-only. Local console uses WebSocket with HTTP poll fallback.</p>
+</div>
+{% endblock %}

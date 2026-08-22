@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Mods · {{ server.name }}{% endblock %}
+{% block page_title %}Mods / Plugins · {{ server.name }}{% endblock %}
+{% block content %}
+<div class="grid two">
+  <div class="cf-panel card">
+    <h2>Installed</h2>
+    <p class="cf-hint">Resolve reads the latest Forge crash report / latest.log (“mod X requires Y”) and installs those libraries from Modrinth.</p>
+    <p style="margin:0.5rem 0 1rem">
+      <button class="cf-btn btn primary" type="button" id="modResolve">Resolve missing libraries</button>
+    </p>
+    {% if not mods %}
+    <p class="empty">No jars in mods/ yet.</p>
+    {% else %}
+    <table class="cf-table table">
+      <thead><tr><th>File</th><th>Modrinth</th><th>Size</th><th></th></tr></thead>
+      <tbody>
+        {% for m in mods %}
+        <tr>
+          <td class="mono">{{ m.name }}</td>
+          <td>{% if m.slug %}<span class="mono">{{ m.slug }}</span> {% if m.version_number %}<span class="dim">{{ m.version_number }}</span>{% endif %}{% else %}<span class="dim">local</span>{% endif %}</td>
+          <td>{{ m.size }}</td>
+          <td><button class="cf-btn btn danger" data-remove="{{ m.name }}">Remove</button></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+  <div class="cf-panel card">
+    <h2>Install from Modrinth</h2>
+    <form id="modSearch" class="form-grid" style="margin-bottom:1rem">
+      <label>Search
+        <input name="q" id="modSearchQ" placeholder="sodium, fabric-api…" />
+      </label>
+      <button class="cf-btn btn" type="submit">Search</button>
+    </form>
+    <div id="modSearchHits" class="cf-hint"></div>
+    <form id="modInstall" class="form-grid">
+      <label>Project id / slug
+        <input name="project_id" id="modProjectId" placeholder="sodium" required />
+      </label>
+      <label>Loader override
+        <input name="loader" placeholder="{{ server.loader or 'fabric' }}" />
+      </label>
+      <label class="cf-check"><input type="checkbox" name="deps" checked /> Install required dependencies</label>
+      <button class="cf-btn btn primary" type="submit">Install</button>
+    </form>
+    <p class="cf-hint">Uses server MC version {{ server.minecraft_version or '(set version first)' }}. Modrinth is a content source — CultForge builds own the managed recipe.</p>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  window.SERVER_ID = {{ server.server_id | tojson }};
+  const hitsEl = document.getElementById("modSearchHits");
+  document.getElementById("modSearch").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const q = document.getElementById("modSearchQ").value.trim();
+    if (!q) return;
+    hitsEl.textContent = "Searching…";
+    try {
+      const res = await CultPanel.api("/v1/command", {
+        method: "POST",
+        body: JSON.stringify({
+          command: "server.mods.search",
+          params: {
+            query: q,
+            limit: 8,
+            loader: {{ (server.loader or 'fabric') | tojson }},
+            game_version: {{ (server.minecraft_version or '') | tojson }},
+          },
+        }),
+      });
+      const data = res.data || res;
+      const hits = data.hits || [];
+      if (!hits.length) {
+        hitsEl.textContent = "No hits.";
+        return;
+      }
+      hitsEl.innerHTML = hits.map((h) => {
+        const slug = h.slug || h.project_id;
+        return `<button type="button" class="cf-btn btn" data-slug="${slug}" style="margin:0.25rem 0.25rem 0 0">${h.title || slug}</button>`;
+      }).join("");
+      hitsEl.querySelectorAll("[data-slug]").forEach((btn) => {
+        btn.onclick = () => {
+          document.getElementById("modProjectId").value = btn.getAttribute("data-slug");
+        };
+      });
+    } catch (err) {
+      hitsEl.textContent = err.message || String(err);
+    }
+  });
+  document.getElementById("modResolve").addEventListener("click", async () => {
+    const flash = document.getElementById("flash");
+    const btn = document.getElementById("modResolve");
+    btn.disabled = true;
+    btn.textContent = "Resolving…";
+    try {
+      const res = await CultPanel.api("/v1/command", {
+        method: "POST",
+        body: JSON.stringify({
+          command: "server.mods.resolve",
+          resource_id: window.SERVER_ID,
+          params: {},
+        }),
+      });
+      const data = res.data || res;
+      const added = data.added_count || 0;
+      const disabled = data.disabled_count || 0;
+      CultPanel.toast(flash, `Resolved: +${added} libraries, ${disabled} client-only disabled. Restart the Minecraft server.`, true);
+      setTimeout(() => location.reload(), 800);
+    } catch (err) {
+      CultPanel.toast(flash, err.message || String(err), false);
+      btn.disabled = false;
+      btn.textContent = "Resolve missing libraries";
+    }
+  });
+  document.getElementById("modInstall").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const flash = document.getElementById("flash");
+    try {
+      await CultPanel.api("/v1/command", {
+        method: "POST",
+        body: JSON.stringify({
+          command: "server.mods.install",
+          resource_id: window.SERVER_ID,
+          params: {
+            project_id: fd.get("project_id"),
+            loader: fd.get("loader") || undefined,
+            install_deps: !!fd.get("deps"),
+          },
+        }),
+      });
+      CultPanel.toast(flash, "Mod installed", true);
+      setTimeout(() => location.reload(), 500);
+    } catch (err) { CultPanel.toast(flash, err.message || String(err), false); }
+  });
+  document.querySelectorAll("[data-remove]").forEach((btn) => {
+    btn.onclick = async () => {
+      const flash = document.getElementById("flash");
+      try {
+        await CultPanel.api("/v1/command", {
+          method: "POST",
+          body: JSON.stringify({
+            command: "server.mods.remove",
+            resource_id: window.SERVER_ID,
+            params: { filename: btn.getAttribute("data-remove") },
+          }),
+        });
+        location.reload();
+      } catch (err) { CultPanel.toast(flash, err.message || String(err), false); }
+    };
+  });
+</script>
+{% endblock %}

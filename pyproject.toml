@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cultagent"
+version = "0.2.0"
+description = "CultForge Agent — local machine-side execution layer for Minecraft servers"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "CultForge" }]
+keywords = ["cultforge", "minecraft", "agent", "server-manager"]
+dependencies = [
+    "httpx>=0.27",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "PyYAML>=6.0",
+    "platformdirs>=4.2",
+    "psutil>=5.9",
+    "typer>=0.12",
+    "rich>=13.7",
+    "starlette>=0.37",
+    "uvicorn>=0.29",
+    "jinja2>=3.1",
+    "tqdm>=4.66",
+    "yaspin>=3.0",
+    "questionary>=2.0",
+    "websockets>=12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+]
+release = [
+    "nuitka>=2.4",
+    "ordered-set>=4.1",
+    "zstandard>=0.22",
+]
+
+[project.scripts]
+cf-agent = "cultagent.cli.main:app"
+
+[tool.setuptools.package-data]
+cultagent = [
+    "web/templates/*.html",
+    "web/templates/server/*.html",
+    "web/static/css/*.css",
+    "web/static/js/*.js",
+    "web/static/img/*",
+    "web/static/spa/*",
+    "web/static/spa/assets/*",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

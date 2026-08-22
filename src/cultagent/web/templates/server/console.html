@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Terminal · {{ server.name }}{% endblock %}
+{% block page_title %}Terminal · {{ server.name }}{% endblock %}
+{% block content %}
+<div class="cf-page-head" style="margin-bottom:0.75rem">
+  <div class="actions">
+    <button class="cf-btn btn primary" data-server-id="{{ server.server_id }}" data-server-action="start">Start</button>
+    <button class="cf-btn btn" data-server-id="{{ server.server_id }}" data-server-action="stop">Stop</button>
+    <button class="cf-btn btn" data-server-id="{{ server.server_id }}" data-server-action="restart">Restart</button>
+  </div>
+  <span class="cf-badge badge {% if status.state == 'running' %}ok{% elif status.state == 'crashed' %}danger{% endif %}">{{ status.state }}</span>
+</div>
+<div class="cf-console console" id="console"></div>
+<div class="cf-console-row console-row">
+  <input id="consoleInput" placeholder="say hello / whitelist add Steve / stop" autocomplete="off" />
+  <button class="cf-btn btn primary" id="consoleSend">Send</button>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>window.SERVER_ID = {{ server.server_id | tojson }};</script>
+<script src="/static/js/console.js"></script>
+{% endblock %}

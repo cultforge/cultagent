@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}System · CultAgent{% endblock %}
+{% block content %}
+{% set cpu = metrics.cpu_percent if metrics.cpu_percent is not none else 0 %}
+{% set mem = metrics.memory_percent if metrics.memory_percent is not none else 0 %}
+{% set disk = metrics.disk_percent if metrics.disk_percent is not none else 0 %}
+<div class="cf-hero">
+  <div class="cf-hero-left">
+    <img class="cf-hero-icon" src="/static/img/logo-disc.png" alt="" />
+    <div>
+      <h1>System</h1>
+      <p class="desc">Host metrics for this CultAgent machine.</p>
+    </div>
+  </div>
+</div>
+<div class="grid stats">
+  <div class="cf-panel cf-stat-card">
+    <h2>CPU</h2>
+    <div class="cf-stat">{{ metrics.cpu_percent | default('—') }}%</div>
+    <div class="cf-meter {% if cpu >= 85 %}danger{% elif cpu >= 65 %}warn{% endif %}"><span style="width: {{ [cpu, 100] | min }}%"></span></div>
+  </div>
+  <div class="cf-panel cf-stat-card">
+    <h2>Memory</h2>
+    <div class="cf-stat">{{ metrics.memory_percent | default('—') }}%</div>
+    <div class="stat-label">{{ metrics.memory_used_gb | default('—') }} / {{ metrics.memory_total_gb | default('—') }} GB</div>
+    <div class="cf-meter {% if mem >= 85 %}danger{% elif mem >= 65 %}warn{% endif %}"><span style="width: {{ [mem, 100] | min }}%"></span></div>
+  </div>
+  <div class="cf-panel cf-stat-card">
+    <h2>Disk</h2>
+    <div class="cf-stat">{{ metrics.disk_percent | default('—') }}%</div>
+    <div class="cf-meter {% if disk >= 85 %}danger{% elif disk >= 65 %}warn{% endif %}"><span style="width: {{ [disk, 100] | min }}%"></span></div>
+  </div>
+</div>
+<div class="cf-panel" style="margin-top:1rem">
+  <h2>Doctor</h2>
+  <p class="muted">Local hardening checks (loopback bind, Java, identity, data dirs).</p>
+  <button class="cf-btn btn ghost" type="button" id="doctorBtn">Run doctor</button>
+  <pre class="mono" id="doctorOut" style="margin-top:0.75rem; overflow:auto"></pre>
+</div>
+<div class="cf-panel" style="margin-top:1rem">
+  <h2>Raw metrics</h2>
+  <pre class="mono" style="overflow:auto">{{ metrics | tojson(indent=2) }}</pre>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.getElementById("doctorBtn").addEventListener("click", async () => {
+    const out = document.getElementById("doctorOut");
+    out.textContent = "Running…";
+    try {
+      const res = await CultPanel.api("/v1/command", {
+        method: "POST",
+        body: JSON.stringify({ command: "node.doctor" }),
+      });
+      out.textContent = JSON.stringify(res.data || res, null, 2);
+    } catch (err) {
+      out.textContent = err.message || String(err);
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Servers · CultAgent{% endblock %}
+{% block content %}
+<div class="cf-hero">
+  <div class="cf-hero-left">
+    <img class="cf-hero-icon" src="/static/img/logo-disc.png" alt="" />
+    <div>
+      <h1>Servers</h1>
+      <p class="desc">Minecraft server instances on this agent host.</p>
+    </div>
+  </div>
+  <div class="cf-hero-actions">
+    <a class="cf-btn btn primary" href="/panel/servers/new">New server</a>
+  </div>
+</div>
+
+<div class="cf-panel">
+  {% if not servers %}
+  <p class="empty">No servers configured.</p>
+  {% else %}
+  <div class="cf-fleet">
+    {% for row in servers %}
+    <div class="cf-fleet-row">
+      <div>
+        <a class="title" href="/panel/servers/{{ row.server.server_id }}">{{ row.server.name }}</a>
+        <div class="sub mono">
+          {% if row.scope == 'guild' %}<span class="cf-badge scope guild">Guild</span>{% elif row.scope == 'personal' %}<span class="cf-badge scope personal">Personal</span>{% else %}<span class="cf-badge scope local">Local</span>{% endif %}
+          {{ row.server.server_id }}
+        </div>
+      </div>
+      <div class="muted">{{ row.server.loader }} · {{ row.server.minecraft_version or '—' }} · :{{ row.server.port }}</div>
+      <div><span class="cf-badge badge {% if row.status.state == 'running' %}ok{% elif row.status.state == 'crashed' %}danger{% endif %}">{{ row.status.state }}</span></div>
+      <div class="actions">
+        <a class="cf-btn btn" href="/panel/servers/{{ row.server.server_id }}/console">Console</a>
+        <button class="cf-btn btn primary" data-server-id="{{ row.server.server_id }}" data-server-action="start">Start</button>
+        <button class="cf-btn btn danger" data-server-id="{{ row.server.server_id }}" data-server-action="stop">Stop</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

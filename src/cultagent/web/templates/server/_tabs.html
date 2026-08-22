@@ -1,0 +1,10 @@
+<div class="cf-tabs tabs">
+  <a href="/panel/servers/{{ server.server_id }}" class="{% if tab == 'overview' %}active{% endif %}">Overview</a>
+  <a href="/panel/servers/{{ server.server_id }}/console" class="{% if tab == 'console' %}active{% endif %}">Terminal</a>
+  <a href="/panel/servers/{{ server.server_id }}/files" class="{% if tab == 'files' %}active{% endif %}">Files</a>
+  <a href="/panel/servers/{{ server.server_id }}/config" class="{% if tab == 'config' %}active{% endif %}">Config</a>
+  <a href="/panel/servers/{{ server.server_id }}/backups" class="{% if tab == 'backups' %}active{% endif %}">Backups</a>
+  <a href="/panel/servers/{{ server.server_id }}/mods" class="{% if tab == 'mods' %}active{% endif %}">Mods</a>
+  <a href="/panel/servers/{{ server.server_id }}/metrics" class="{% if tab == 'metrics' %}active{% endif %}">Metrics</a>
+  <a href="/panel/servers/{{ server.server_id }}/admin" class="{% if tab == 'admin' %}active{% endif %}">Admin</a>
+</div>

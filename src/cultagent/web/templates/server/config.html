@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Config · {{ server.name }}{% endblock %}
+{% block page_title %}Config · {{ server.name }}{% endblock %}
+{% block content %}
+<div class="cf-panel card">
+  <h2>Structured groups</h2>
+  <p class="muted">Read-only grouping of server.properties. Edit the raw file below or use Profiles.</p>
+  {% if structured %}
+  <div class="grid" style="gap:0.75rem">
+    {% for group, values in structured.items() %}
+      {% if values %}
+      <div>
+        <h3 style="margin:0 0 0.35rem; font-size:0.95rem">{{ group }}</h3>
+        <dl class="cf-dl compact">
+          {% for key, val in values.items() %}
+          <dt>{{ key }}</dt><dd class="mono">{{ val }}</dd>
+          {% endfor %}
+        </dl>
+      </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">No properties yet (server may not be installed).</p>
+  {% endif %}
+  <p style="margin-top:0.75rem"><a href="/panel/profiles">Manage profiles →</a></p>
+</div>
+<div class="cf-panel card" style="margin-top:1rem">
+  <h2>server.properties</h2>
+  <form id="configForm" class="form-grid wide">
+    <textarea id="configText" name="raw">{{ raw }}</textarea>
+    <div class="actions">
+      <button class="cf-btn btn primary" type="submit">Save properties</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  window.SERVER_ID = {{ server.server_id | tojson }};
+  document.getElementById("configForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const flash = document.getElementById("flash");
+    try {
+      await CultPanel.api(`/v1/servers/${window.SERVER_ID}/config`, {
+        method: "PUT",
+        body: JSON.stringify({ raw: document.getElementById("configText").value }),
+      });
+      CultPanel.toast(flash, "Config saved", true);
+    } catch (err) {
+      CultPanel.toast(flash, err.message || String(err), false);
+    }
+  });
+</script>
+{% endblock %}

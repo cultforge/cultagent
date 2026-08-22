@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local agent data / secrets
+data/
+*.local.yaml
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Panel UI (rebuild with npm run build in panel-ui/)
+panel-ui/node_modules/
+panel-ui/dist/
+
+# Logs
+*.log
+logs/
+
+# Vendored reference trees (clone separately if needed)
+vendor/
+
+# Cursor / local agent state
+.cursor/
+
+# Local playit runtime / secrets (downloaded by agent)
+playit/

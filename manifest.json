@@ -1,0 +1,2370 @@
+{
+  "ok": true,
+  "command": "builds.manifest",
+  "data": {
+    "schema_version": 1,
+    "build_id": "bld_R0MmMc9w1ozN7x3LH0o5bA",
+    "guild_id": "gld_blv3F8vbTwKq5h3Ep6LAvw",
+    "mode": "resolved",
+    "minecraft_version": "1.20.1",
+    "loader": "forge",
+    "excludes": [
+      "saves/**",
+      "logs/**",
+      "crash-reports/**"
+    ],
+    "files": [
+      {
+        "path": "mods/AmbientEnvironment-forge-1.20.1-11.0.0.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/DyTvM1dv/versions/BYzQMmi7/AmbientEnvironment-forge-1.20.1-11.0.0.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/comfortable_campfires-2.0.1_1.20.1-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/lOZBoyio/versions/IzX1Lb5L/comfortable_campfires-2.0.1%2B1.20.1-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/fallingleaves-1.20.1-2.1.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/2JAUNCL4/versions/j5eND1ZA/fallingleaves-1.20.1-2.1.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/From-The-Fog-1.20-v1.9.2-Forge-Fabric.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/p1WH6sHr/versions/JTd3TFcc/From-The-Fog-1.20-v1.9.2-Forge-Fabric.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Fog-forge-1.5.3-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/WuGVWUF2/versions/5Lmz97Q7/Fog-forge-1.5.3-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/SubtleEffects-forge-1.20.1-1.14.3.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/4q8UOK1d/versions/41iwVxX9/SubtleEffects-forge-1.20.1-1.14.3.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/immersivelanterns-forge-1.0.6-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/vskzdsyT/versions/bKAfmaXM/immersivelanterns-forge-1.0.6-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/AmbientSounds_FORGE_v6.3.8_mc1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/fM515JnW/versions/AuLdtrBY/AmbientSounds_FORGE_v6.3.8_mc1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/mobbattlemusic-1.20.1-1.1.1.2-all.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/pAmItJ0c/versions/RDisXWTm/mobbattlemusic-1.20.1-1.1.1.2-all.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Presence_Footsteps_FORGE_1.0.0.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/dLfueQtY/versions/mru6MmJT/Presence%20Footsteps%20%5BFORGE%5D%201.0.0.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/sound-physics-remastered-forge-1.20.1-1.5.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/qyVF9oeo/versions/x0sJ9PeR/sound-physics-remastered-forge-1.20.1-1.5.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/_forge_ctov-3.4.14.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/fgmhI8kH/versions/o7mg6MeV/%5Bforge%5Dctov-3.4.14.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/easy-villagers-forge-1.20.1-1.1.39.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/Kaov2qgi/versions/mmqcSSvf/easy-villagers-forge-1.20.1-1.1.39.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/furnish-26-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/5cWCtJmf/versions/CnvI4dD5/furnish-26-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/guardvillagers-1.20.1-1.6.18.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/H1sntfo8/versions/jhuh3S9g/guardvillagers-1.20.1-1.6.18.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/handcrafted-forge-1.20.1-3.0.6.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/pJmCFF0p/versions/N7wZwOFy/handcrafted-forge-1.20.1-3.0.6.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/integrated_villages-1.3.2_1.20.1-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/o1qh5qIF/versions/hoQg6GXe/integrated_villages-1.3.2%2B1.20.1-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/lukis-grand-capitals-1.1.3.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/8Lw09aLb/versions/RBwKCOh4/lukis-grand-capitals-1.1.3.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/mcw-bridges-3.1.2-mc1.20.1forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/GURcjz8O/versions/KImk0Oo1/mcw-bridges-3.1.2-mc1.20.1forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/mcw-doors-1.1.5-mc1.20.1forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/kNxa8z3e/versions/n8BlIUm3/mcw-doors-1.1.5-mc1.20.1forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/mcw-mcwstairs-1.0.2-mc1.20.1forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/iP3wH1ha/versions/wL67k7Aj/mcw-mcwstairs-1.0.2-mc1.20.1forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/open-parties-and-claims-forge-1.20.1-0.29.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/gF3BGWvG/versions/X3S21Y8Y/open-parties-and-claims-forge-1.20.1-0.29.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/recruits-1.20.1-1.15.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/WOg9lm4u/versions/2zXpVxK4/recruits-1.20.1-1.15.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/furniture_mod_tools_refurbished-1.0.1-forge-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/wjNYBh7l/versions/U9fvDgM8/furniture_mod_tools_refurbished-1.0.1-forge-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/smarterfarmers-1.20-2.1.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/Bh6ZOMvp/versions/Pg7m0oCv/smarterfarmers-1.20-2.1.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Towns-and-Towers-1.12-Fabric_Forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/DjLobEOy/versions/7ZwnSrVW/Towns-and-Towers-1.12-Fabric%2BForge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/trade-cycling-forge-1.20.1-1.0.18.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/qpPoAL6m/versions/W1h55dwF/trade-cycling-forge-1.20.1-1.0.18.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/villagernames-1.20.1-8.5.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/gqRXDo8B/versions/2THA99E5/villagernames-1.20.1-8.5.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/carryon-forge-1.20.1-2.1.2.7.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/joEfVgkn/versions/edGQD16r/carryon-forge-1.20.1-2.1.2.7.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Controlling-forge-1.20.1-12.0.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/xv94TkTM/versions/LH6Bi6Am/Controlling-forge-1.20.1-12.0.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/corpse-forge-1.20.1-1.0.23.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/WrpuIfhw/versions/7fc0hJN6/corpse-forge-1.20.1-1.0.23.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/doubledoors-1.20.1-7.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/JrvR9OHr/versions/JxWWE54a/doubledoors-1.20.1-7.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/EnchantmentDescriptions-Forge-1.20.1-17.1.21.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/UVtY3ZAC/versions/OPgBRfTQ/EnchantmentDescriptions-Forge-1.20.1-17.1.21.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/getittogetherdrops-forge-1.20-1.3.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/T0OUgf8P/versions/csPzTtJp/getittogetherdrops-forge-1.20-1.3.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/MerchantMarkers-1.20.1-forge-1.3.3.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/AGhiJWsU/versions/F26aEOdk/MerchantMarkers-1.20.1-forge-1.3.3.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/MouseTweaks-forge-mc1.20.1-2.25.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/aC3cM3Vq/versions/7JVXOe3K/MouseTweaks-forge-mc1.20.1-2.25.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/polymorph-forge-0.49.10_1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/tagwiZkJ/versions/UZBKtFyR/polymorph-forge-0.49.10%2B1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/ShoulderSurfing-Forge-1.20.1-5.0.10.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/kepjj2sy/versions/C2x1kSj7/ShoulderSurfing-Forge-1.20.1-5.0.10.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/sophisticatedstorage-1.20.1-1.4.81.2086.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/hMlaZH8f/versions/eANzNJKQ/sophisticatedstorage-1.20.1-1.4.81.2086.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/StorageDrawers-forge-1.20.1-12.14.3.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/guitPqEi/versions/8raubcF4/StorageDrawers-forge-1.20.1-12.14.3.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/wits-1.1.1_1.20.1-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/AVo2esap/versions/W6FbfJdU/wits-1.1.1%2B1.20.1-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/ars_nouveau-1.20.1-4.12.7-all.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/TKB6INcv/versions/Hw2aD01e/ars_nouveau-1.20.1-4.12.7-all.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/CataclysmWeaponery2.0-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/S5OkaSK0/versions/wQGRipgG/CataclysmWeaponery2.0-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/sword_soaring-20.14.2.8-mc1.20.1-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/oP1of4Wn/versions/9qFBIdEx/sword_soaring-20.14.2.8-mc1.20.1-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/epic-knights-1.20.1-forge-10.11.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/L6jvzao4/versions/2kK9qUpx/epic-knights-1.20.1-forge-10.11.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/fantasy_armor-forge-1.2.4-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/oVmpjYQ5/versions/U65HntTA/fantasy_armor-forge-1.2.4-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/ice_and_fire_spellbooks-2.3.2-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/aw5e7yPa/versions/fkpYeaSE/ice_and_fire_spellbooks-2.3.2-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/irons_spellbooks-1.20.1-3.16.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/s4OWxYQQ/versions/9v34JOKI/irons_spellbooks-1.20.1-3.16.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/soulslike-weaponry-1.4.8-1.20.1-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/oX6SohLj/versions/qGXBaWEo/soulslike-weaponry-1.4.8-1.20.1-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/simplyswords-forge-1.56.0-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/bK3Ubu9p/versions/OFYmngee/simplyswords-forge-1.56.0-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/tacz-1.20.1-1.1.8-hotfix.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/SzzJttH8/versions/yOVIzIJR/tacz-1.20.1-1.1.8-hotfix.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/WeaponsOfMiracles-2.0.171-mc1.20.1-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/oWx9p4ug/versions/nf0AyjKh/WeaponsOfMiracles-2.0.171-mc1.20.1-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/almostunified-forge-1.20.1-0.11.0.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/sdaSaQEz/versions/9qc7KIeg/almostunified-forge-1.20.1-0.11.0.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/ars_ocultas-1.20.1-1.2.2-all.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/Tsw8vbks/versions/si2iOQut/ars_ocultas-1.20.1-1.2.2-all.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/colorwheel_patcher-forge-1.0.5_mc1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/KPsw5jDu/versions/REyG66M8/colorwheel_patcher-forge-1.0.5%2Bmc1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/ConnectorExtras-1.11.2_1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/FYpiwiBR/versions/d28gpPn6/ConnectorExtras-1.11.2%2B1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/entitymodelshaderfix-forge-1.1.0_mc1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/M0ds8rsj/versions/4hlaKT2V/entitymodelshaderfix-forge-1.1.0%2Bmc1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/everycomp-1.20-2.9.24-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/eiktJyw1/versions/XjlFVoB7/everycomp-1.20-2.9.24-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/iaf_patcher-1.2-all.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/5ajMogiG/versions/rEsbOc7b/iaf_patcher-1.2-all.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Item-Obliterator-NeoForge-MC1.20.1-2.3.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/3ESR84kR/versions/EV0cDZhI/Item-Obliterator-NeoForge-MC1.20.1-2.3.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/lmft-1.0.4_1.20.1-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/67kVxsaO/versions/XJdD8eB6/lmft-1.0.4%2B1.20.1-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/MaxHealthFix-Forge-1.20.1-12.0.4.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/mH8wdmqr/versions/9zIRBxJ9/MaxHealthFix-Forge-1.20.1-12.0.4.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/mowzies_cataclysm-1.2.0.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/7UsJsd1y/versions/62mVzgAp/mowzies_cataclysm-1.2.0.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/WaystonesTeleportPets-1.20-1.20.1--1.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/VaCl9OtG/versions/Yh4b40rs/WaystonesTeleportPets-1.20-1.20.1--1.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/waystones-forge-1.20.1-14.1.20.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/LOpKHB2A/versions/sKoHLGbK/waystones-forge-1.20.1-14.1.20.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/xaeros_waystones_compatibility-1.1_-_1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/7mLhyqIY/versions/NujdXicM/xaeros_waystones_compatibility-1.1%20-%201.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/WaystoneSpawnpoints-1.20.1-1.0.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/fEwMBHdb/versions/wlXhPVxd/WaystoneSpawnpoints-1.20.1-1.0.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/aquamirae-forge-1.20.1-7.1.10.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/k23mNPhZ/versions/50maZm84/aquamirae-forge-1.20.1-7.1.10.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/deeperdarker-forge-1.20.1-1.3.3.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/fnAffV0n/versions/e2oirgc2/deeperdarker-forge-1.20.1-1.3.3.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/enlightend-5.0.14-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/SwolYSb8/versions/Y3tfisi2/enlightend-5.0.14-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/IAV-1.1.11-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/x99uA7Bu/versions/OqHpsCYj/IAV-1.1.11-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/immersive_aircraft-1.4.1_1.20.1-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/x3HZvrj6/versions/QQI7iHKf/immersive_aircraft-1.4.1%2B1.20.1-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Immersive_Vehicles-1.20.1-24.0.0.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/BCzBuhJ5/versions/xBHmZvmC/Immersive%20Vehicles-1.20.1-24.0.0.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/journeymap-forge-1.20.1-6.0.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/lfHFW1mp/versions/T7k6KTVz/journeymap-forge-1.20.1-6.0.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/lootr-forge-1.20-0.7.35.94.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/EltpO5cN/versions/mWTXC1ZX/lootr-forge-1.20-0.7.35.94.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/man_of_many_planes-0.2.0_1.20.1-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/9qdTHi0q/versions/uZNB5Zrk/man_of_many_planes-0.2.0%2B1.20.1-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/NaturesCompass-1.20.1-1.12.0-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/fPetb5Kh/versions/eRSDvCjN/NaturesCompass-1.20.1-1.12.0-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/nether_remastered-2.6-forge-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/EGQuQeJV/versions/CoTeZRJp/nether_remastered-2.6-forge-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/smallships-forge-1.20.1-2.0.0-b1.4.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/rGWEHQrP/versions/58DKgNnY/smallships-forge-1.20.1-2.0.0-b1.4.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/smallships_upgrades-forge-1.20.1-1.0.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/HRWfY2Uh/versions/RMV1s428/smallships_upgrades-forge-1.20.1-1.0.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/sophisticatedbackpacks-1.20.1-3.24.66.2095.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/TyCTlI4b/versions/iwTlYTI7/sophisticatedbackpacks-1.20.1-3.24.66.2095.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Stargate.Journey-1.20.1-0.6.47.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/qlc8dxM6/versions/yZrH3xET/Stargate.Journey-1.20.1-0.6.47.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/TheOuterEnd-1.0.13.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/X8s97ySO/versions/cHipmvNM/TheOuterEnd-1.0.13.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/travelersbackpack-forge-1.20.1-9.1.56.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/rlloIFEV/versions/YU3VeLg8/travelersbackpack-forge-1.20.1-9.1.56.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/TravelersTitles-1.20-Forge-4.0.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/JtifUr64/versions/oUSK4sOQ/TravelersTitles-1.20-Forge-4.0.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/xaerominimap-forge-1.20.1-26.4.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/1bokaNcj/versions/A1JacFsh/xaerominimap-forge-1.20.1-26.4.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/xaeroworldmap-forge-1.20.1-1.44.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/NcUtCpym/versions/kQ06HixR/xaeroworldmap-forge-1.20.1-1.44.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/additional_attributes-1.20.1-1.3.6-all.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/z7dzpcw6/versions/6etKhuGO/additional_attributes-1.20.1-1.3.6-all.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/ApothicAttributes-1.20.1-1.3.7.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/DGaH8Rh0/versions/fwL9CWGd/ApothicAttributes-1.20.1-1.3.7.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/architectury-9.2.14-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/lhGA9TYQ/versions/1MKTLiiG/architectury-9.2.14-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Atlas_Lib-1.20.1-1.1.12.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/G6VHtQr4/versions/PKJi0BrP/Atlas%20Lib-1.20.1-1.1.12.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/AttributeFix-Forge-1.20.1-21.0.5.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/lOOpEntO/versions/ihWybkI9/AttributeFix-Forge-1.20.1-21.0.5.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/azurelib-neo-1.20.1-3.1.12.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/7zlUOZvb/versions/Q73c8YKY/azurelib-neo-1.20.1-3.1.12.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/baguettelib-1.20.1-Forge-1.1.6.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/OfKzpbRU/versions/vLbvKK04/baguettelib-1.20.1-Forge-1.1.6.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Patchouli-1.20.1-85-FORGE.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/nU0bVIaL/versions/94dtOLgZ/Patchouli-1.20.1-85-FORGE.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/alexsmobs-1.22.9.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/2cMuAZAp/versions/XoIASRVU/alexsmobs-1.22.9.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/friendsandfoes-forge-mc1.20.1-3.0.9.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/BOCJKD49/versions/ihFi4QrR/friendsandfoes-forge-mc1.20.1-3.0.9.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/iceandfirebettercombat.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/pjMUs69E/versions/d5Vp1w6z/iceandfirebettercombat.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/improvedmobs-1.20.1-1.13.7-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/23MovWyi/versions/hQPzm4z2/improvedmobs-1.20.1-1.13.7-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/DailyBoss-Cataclysm-1.20.1-1.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/Z1mtkoz6/versions/1C1JRIxs/DailyBoss-Cataclysm-1.20.1-1.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/lendersdelight-1.20.1-1.0.10b.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/a48R8AGk/versions/A3ZdFfKb/lendersdelight-1.20.1-1.0.10b.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/livingthings-forge-1.20.1-2.3.0.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/UKDLi1GJ/versions/5BxljW71/livingthings-forge-1.20.1-2.3.0.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/mowziesmobs-1.8.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/BFbX9xcm/versions/acYEfsJa/mowziesmobs-1.8.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/saintsdragons-0.9.3_forge-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/rjcsjwEU/versions/1Mjlec0M/saintsdragons-0.9.3%2Bforge-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/BadOptimizations-2.4.1-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/g96Z4WVZ/versions/DIugITgU/BadOptimizations-2.4.1-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/dynamic-fps-3.11.4_minecraft-1.20.0-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/LQ3K71Q1/versions/EjdIWWqG/dynamic-fps-3.11.4%2Bminecraft-1.20.0-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/embeddium-0.3.31_mc1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/sk9rgfiA/versions/UTbfe5d1/embeddium-0.3.31%2Bmc1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/entityculling-forge-1.10.5-mc1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/NNAgCjsB/versions/MloBcsQQ/entityculling-forge-1.10.5-mc1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/ferritecore-6.0.1-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/uXXizFIs/versions/DG5Fn9Sz/ferritecore-6.0.1-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/flerovium-forge-1.20.1-1.2.19-all.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/4Rh1Mobu/versions/nBTmGp0v/flerovium-forge-1.20.1-1.2.19-all.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/ImmediatelyFast-Forge-1.5.5_1.20.4.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/5ZwdcRci/versions/rvsLEEZU/ImmediatelyFast-Forge-1.5.5%2B1.20.4.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Log-Begone-Forge-1.20.1-1.0.8.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/9ON3zv6e/versions/HEJGfa5J/Log-Begone-Forge-1.20.1-1.0.8.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/memoryleakfix-forge-1.17_-1.1.5.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/NRjRiSSD/versions/3w0IxNtk/memoryleakfix-forge-1.17%2B-1.1.5.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/mobtimizations-forge-1.20.1-1.0.0.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/Kbz7UydC/versions/mEhoYk0d/mobtimizations-forge-1.20.1-1.0.0.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/modernfix-forge-5.27.72_mc1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/nmDcB62a/versions/X5IBt7e3/modernfix-forge-5.27.72%2Bmc1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/packetfixer-3.3.2-1.18-1.20.4-merged.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/c7m1mi73/versions/9F4NGhGR/packetfixer-3.3.2-1.18-1.20.4-merged.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/structure_layout_optimizer-forge-1.0.11.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/ayPU0OHc/versions/EazfspJH/structure_layout_optimizer-forge-1.0.11.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/AdChimneys-1.20.1-10.1.31.0-build.2268.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/r2rWUhnP/versions/BXcJdCf0/AdChimneys-1.20.1-10.1.31.0-build.2268.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Aquaculture-1.20.1-2.5.7.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/Vl1uNAuy/versions/wNiFoROs/Aquaculture-1.20.1-2.5.7.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/create-1.20.1-6.0.8.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/LNytGWDc/versions/8amzvn9x/create-1.20.1-6.0.8.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Steam_Rails-1.7.2_forge-mc1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/ZzjhlDgM/versions/I6GhUCyk/Steam_Rails-1.7.2%2Bforge-mc1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/createaddition-1.20.1-1.3.3.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/kU1G12Nn/versions/9LgyB6Yb/createaddition-1.20.1-1.3.3.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/createdieselgenerators-1.20.1-1.3.12.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/ZM3tt6p1/versions/DTQVvA5H/createdieselgenerators-1.20.1-1.3.12.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/create_central_kitchen-1.20.1-for-create-6.0.8-1.5.0.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/btq68HMO/versions/Z4kwyYKV/create_central_kitchen-1.20.1-for-create-6.0.8-1.5.0.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/create_ultimate_factory-2.2.4-forge-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/N9QToVpw/versions/PYJJQvb8/create_ultimate_factory-2.2.4-forge-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/crossroads-1.20.1-2.10.4.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/AucYCd0o/versions/clpfXXqV/crossroads-1.20.1-2.10.4.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Delightful-1.20.1-3.8.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/JtSnhtNJ/versions/HbEQIqIu/Delightful-1.20.1-3.8.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/FarmersDelight-1.20.1-1.3.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/R2OftAxM/versions/CsjS7EkP/FarmersDelight-1.20.1-1.3.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/ImmersiveEngineering-1.20.1-10.2.0-183.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/tIm2nV03/versions/WUzj4tgJ/ImmersiveEngineering-1.20.1-10.2.0-183.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/iaie-1.2-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/lcVSP8hB/versions/d4ST5GIV/iaie-1.2-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/industrial-foregoing-1.20.1-3.5.22.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/lWxpUd04/versions/5XXYqEMK/industrial-foregoing-1.20.1-3.5.22.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/sawmill-1.20-1.4.11.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/WRaRZdTd/versions/oxchyq1r/sawmill-1.20-1.4.11.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/moreartifacts-1.5.5-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/pw7I8DWj/versions/6Fd8VL9U/moreartifacts-1.5.5-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/dimdungeons-207-neoforge-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/Q8XlZjYF/versions/nKQuSvjH/dimdungeons-207-neoforge-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/forge-medievalend-1.0.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/bq6nqeOx/versions/GtiP8x44/forge-medievalend-1.0.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/medieval_buildings-1.20.1-1.1.3-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/sc9lpPiU/versions/lZ65XLzB/medieval_buildings-1.20.1-1.1.3-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/medieval_buildings_nether_edition-1.20.1-1.0.2-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/9zKI9xOD/versions/ZucveU10/medieval_buildings_nether_edition-1.20.1-1.0.2-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/The_Graveyard_3.1__FORGE__for_1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/U1jdQuSf/versions/Q66WyQ3F/The_Graveyard_3.1_%28FORGE%29_for_1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/underwater_village-1.0.2-forge-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/b4628Bd1/versions/Ja3g37bT/underwater_village-1.0.2-forge-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/DungeonsArise-1.20.x-2.1.58-release.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/8DfbfASn/versions/6hQpx5Tc/DungeonsArise-1.20.x-2.1.58-release.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/DungeonsAriseSevenSeas-1.19.2-1.0.2-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/ZsrrjDbP/versions/AxIOkvEv/DungeonsAriseSevenSeas-1.19.2-1.0.2-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/YungsBetterNetherFortresses-1.20-Forge-2.0.6.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/Z2mXHnxP/versions/2nUEz0zq/YungsBetterNetherFortresses-1.20-Forge-2.0.6.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/YungsBetterOceanMonuments-1.20-Forge-3.0.4.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/3dT9sgt4/versions/SN4iZ7wf/YungsBetterOceanMonuments-1.20-Forge-3.0.4.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/YungsBetterDungeons-1.20-Forge-4.0.4.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/o1C1Dkj5/versions/kPiQ6v4q/YungsBetterDungeons-1.20-Forge-4.0.4.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/YungsBetterMineshafts-1.20-Forge-4.0.4.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/HjmxVlSr/versions/kVO57zxB/YungsBetterMineshafts-1.20-Forge-4.0.4.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/YungsBetterEndIsland-1.20-Forge-2.0.6.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/2BwBOmBQ/versions/Izqhg3Va/YungsBetterEndIsland-1.20-Forge-2.0.6.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/YungsBetterDesertTemples-1.20-Forge-3.0.3.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/XNlO7sBv/versions/lRK2ZA9U/YungsBetterDesertTemples-1.20-Forge-3.0.3.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/AdvancementPlaques-1.20.1-forge-1.6.9.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/9NM0dXub/versions/xqigG9AR/AdvancementPlaques-1.20.1-forge-1.6.9.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/BetterAdvancements-Forge-1.20.1-0.6.0.73.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/Q2OqKxDG/versions/zKOCnRdK/BetterAdvancements-Forge-1.20.1-0.6.0.73.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/jei-1.20.1-forge-15.49.0.188.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/u6dRKJwZ/versions/hVXQAD0D/jei-1.20.1-forge-15.49.0.188.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/JustEnoughResources-1.20.1-1.4.0.247.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/uEfK2CXF/versions/jW52tbTk/JustEnoughResources-1.20.1-1.4.0.247.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/modernworldcreation_forge_2.0.2_MC_1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/xHskr2cS/versions/3EAmx5Pn/modernworldcreation_forge_2.0.2_MC_1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/OverflowingBars-v8.0.1-1.20.1-Forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/XD7XOrAF/versions/w90XIUWB/OverflowingBars-v8.0.1-1.20.1-Forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/dynamiclights-v1.9-mc1.17-1.21.9-mod.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/7YjclEGc/versions/Ag9747sk/dynamiclights-v1.9-mc1.17-1.21.9-mod.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/oculus-mc1.20.1-1.8.0.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/GchcoXML/versions/iQ1SwGc3/oculus-mc1.20.1-1.8.0.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/atmospheric-1.20.1-6.1.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/U9sJOFmJ/versions/B9fN8ZSq/atmospheric-1.20.1-6.1.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/ClimateRivers-v20.1.0-1.20.1-Forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/DzZWws4q/versions/tclzgJeT/ClimateRivers-v20.1.0-1.20.1-Forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/EndlessBiomes_1.6.0_-_1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/pzR01ieE/versions/5Tr5dKYk/EndlessBiomes%201.6.0%20-%201.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/Incendium_1.20.x_v5.3.5.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/ZVzW5oNS/versions/uUqarp2H/Incendium_1.20.x_v5.3.5.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/natures_spirit-2.2.5-1.20.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/WBvnqHfV/versions/ri5j4RHM/natures_spirit-2.2.5-1.20.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/PassableFoliage-1.20.1-forge-8.2.1.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/uaLW6JVR/versions/71TQMuce/PassableFoliage-1.20.1-forge-8.2.1.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/supplementaries-1.20-3.1.43-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/fFEIiSDQ/versions/S0TIJ1hU/supplementaries-1.20-3.1.43-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/YouShallNotSpawn-forge-1.20.x-2.0.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/EjXcpmEA/versions/cOtszKAy/YouShallNotSpawn-forge-1.20.x-2.0.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/yet_another_config_lib_v3-3.6.6_1.20.1-forge.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/1eAoo2KR/versions/sCWgXDYQ/yet_another_config_lib_v3-3.6.6%2B1.20.1-forge.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "mods/veinminer-paper-2.4.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/OhduvhIc/versions/1GsfXkQh/veinminer-paper-2.4.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/spawnanimations-v1.11.5-mc1.17-26.2.9-mod.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/zrzYrlm0/versions/2W3Fq5gV/spawnanimations-v1.11.5-mc1.17-26.2.9-mod.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/Sensible_Trade_Overhaul.zip.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/RV8yU1MT/versions/bcXzDqtB/Sensible%20Trade%20Overhaul.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/tidal-towns-1.3.4.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/EEIwvQVo/versions/aAa24NQe/tidal-towns-1.3.4.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/caves__canyons-1.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/uMcyUgtO/versions/AovRyC6Z/caves__canyons-1.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/BlazeandCave_s_Advancements_Pack_1.16.2.zip.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/VoVJ47kN/versions/T3BLedpI/BlazeandCave%27s%20Advancements%20Pack%201.16.2.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/tru.e-ending-v1.1.0c.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/MCnBYP0b/versions/TO1g4SDa/tru.e-ending-v1.1.0c.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/ATi_Structures_Vanilla_V1.4.5.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/YWVAO3wq/versions/hHw6n2T7/ATi%20Structures%20Vanilla%20V1.4.5.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/create-structures-0.1.1-1.20.1-FABRIC.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/IAnP4np7/versions/nqsTHZwx/create-structures-0.1.1-1.20.1-FABRIC.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/dungeons_-1.8.4b.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/nHORcEHd/versions/xUbdG5Sj/dungeons%2B-1.8.4b.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/Explorify_v1.6.5.mod.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/HSfsxuTo/versions/CuBdAr31/Explorify%20v1.6.5.mod.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/Structory_1.20_v1.3.5.zip.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/aKCwCJlY/versions/Mqf8GtVD/Structory_1.20_v1.3.5.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/Structory_Towers_1.20_v1.0.7.zip.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/j3FONRYr/versions/jn7FPN0l/Structory_Towers_1.20_v1.0.7.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/Hearths_v1.0.5.mod.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/XCIMrYn0/versions/tu78cSah/Hearths%20v1.0.5.mod.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/Stony_Cliffs_FML_v1.1.2.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/boFjx9eY/versions/GRs8dpYU/Stony%20Cliffs%20FML%20v1.1.2.jar"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/Winter_Apocalypse_1.20-1.20.1_Beginner.zip.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/OZlg1sxK/versions/ie9zRZyK/Winter%20Apocalypse%20%2B%2B%201.20-1.20.1%20Beginner.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "mods/customized.zip.jar",
+        "urls": [
+          "https://cdn.modrinth.com/data/4N3cKz27/versions/tzAL9WSK/customized.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "mod",
+        "env": "both",
+        "optional": true
+      },
+      {
+        "path": "shaderpacks/Ebin-Resurrected-v1.5.6.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/VP9picRm/versions/blRQVUY5/Ebin-Resurrected-v1.5.6.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "shader",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "resourcepacks/Excalibur_V1.20.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/hJAzl1Bs/versions/yVpdNmnj/Excalibur_V1.20.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "resourcepack",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "resourcepacks/EFA_1.10.4_Hotfix_2.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/yiTthr0O/versions/jiXWu7yt/EFA_1.10.4%20Hotfix_2.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "resourcepack",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "resourcepacks/Excalibur_Curios_Accessories_1.3.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/USa5LfFr/versions/lrWqidTv/Excalibur%20Curios%20%26%20Accessories%201.3.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "resourcepack",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "resourcepacks/Excalibur_EpicKnights_0.4_1.20.1.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/8WkyuB6U/versions/vevcbFBY/Excalibur_EpicKnights_0.4_1.20.1.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "resourcepack",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "resourcepacks/Excalibur_Jei_Support_1.3.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/ZgAnWkVB/versions/one2PeLK/Excalibur%20Jei%20Support%201.3.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "resourcepack",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "resourcepacks/Excalibur_Mowzie_s_Mobs_1.0.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/lf81ACnW/versions/2mwar2Kz/Excalibur%20Mowzie%27s%20Mobs%201.0.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "resourcepack",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "resourcepacks/_1.6_Enhanced_Boss_Bars.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/U5SedJ9S/versions/fzlnlUF3/%5B1.6%5D%20Enhanced%20Boss%20Bars.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "resourcepack",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "resourcepacks/Icon_Xaero_s_1.22.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/LWGq2eg6/versions/OC90EEmJ/Icon%20Xaero%27s%201.22.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "resourcepack",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "resourcepacks/Visual_Titles_1.3.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/Z6cnZeGU/versions/AwVu5ygs/Visual%20Titles%201.3.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "resourcepack",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "resourcepacks/G_s_Dragons_Retextured_1.20.1-v5.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/2AggyYcz/versions/O7n2BAtJ/G%27s_Dragons_Retextured_1.20.1-v5.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "resourcepack",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "resourcepacks/FreshAnimations_v1.10.4.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/50dA9Sha/versions/xN57JJts/FreshAnimations_v1.10.4.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "resourcepack",
+        "env": "both",
+        "optional": false
+      },
+      {
+        "path": "resourcepacks/waystones_update_2_1.20.1.zip",
+        "urls": [
+          "https://cdn.modrinth.com/data/BcyGAwlg/versions/7vacRuYz/waystones_update_2_1.20.1.zip"
+        ],
+        "size": null,
+        "sha256": null,
+        "sha512": null,
+        "kind": "resourcepack",
+        "env": "both",
+        "optional": false
+      }
+    ],
+    "unresolved": [],
+    "warnings": [],
+    "compatibility": {
+      "ok": true,
+      "issues": [],
+      "notes": [
+        "194 file(s) lack sha256 (install will not verify)",
+        "17 optional file(s) (use --optional to include)"
+      ],
+      "counts": {
+        "files": 194,
+        "optional": 17,
+        "client_only": 0,
+        "missing_sha256": 194,
+        "unresolved": 0,
+        "by_kind": {
+          "mod": 181,
+          "shader": 1,
+          "resourcepack": 12
+        }
+      }
+    }
+  },
+  "error": null
+}

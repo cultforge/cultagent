@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Admin · {{ server.name }}{% endblock %}
+{% block page_title %}Admin · {{ server.name }}{% endblock %}
+{% block content %}
+<div class="cf-panel card">
+  <h2>Admin controls</h2>
+  <p class="muted" style="margin:-0.25rem 0 1rem">High-impact actions for this server instance.</p>
+  <div class="actions">
+    <button class="cf-btn btn primary" data-server-id="{{ server.server_id }}" data-server-action="start">Start</button>
+    <button class="cf-btn btn" data-server-id="{{ server.server_id }}" data-server-action="stop">Stop</button>
+    <button class="cf-btn btn" data-server-id="{{ server.server_id }}" data-server-action="restart">Restart</button>
+    <button class="cf-btn btn" id="acceptEula">Accept EULA</button>
+  </div>
+  <h3 style="margin-top:1.5rem">Launch</h3>
+  <pre class="mono muted">{% if server.execution_command %}{{ server.execution_command }}{% else %}java {{ server.jvm_args or '-Xms1G -Xmx2G' }} -jar {{ server.executable or 'server.jar' }} nogui{% endif %}</pre>
+  <h3 style="margin-top:1.5rem">Record</h3>
+  <pre class="mono" style="overflow:auto">{{ server_dump | tojson(indent=2) }}</pre>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  window.SERVER_ID = {{ server.server_id | tojson }};
+  document.getElementById("acceptEula").onclick = async () => {
+    const flash = document.getElementById("flash");
+    try {
+      await CultPanel.api(`/v1/servers/${window.SERVER_ID}/eula`, { method: "POST", body: "{}" });
+      CultPanel.toast(flash, "EULA accepted", true);
+    } catch (e) { CultPanel.toast(flash, e.message || String(e), false); }
+  };
+</script>
+{% endblock %}

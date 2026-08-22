@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Builds · CultAgent{% endblock %}
+{% block content %}
+<div class="cf-hero">
+  <div class="cf-hero-left">
+    <img class="cf-hero-icon" src="/static/img/logo-disc.png" alt="" />
+    <div>
+      <h1>Guild Builds</h1>
+      <p class="desc">Published CultForge builds available to this agent. Provision with the CLI.</p>
+    </div>
+  </div>
+</div>
+
+{% if error %}
+<p class="cf-hint" style="color:var(--cf-danger,#f66)">{{ error }}</p>
+{% endif %}
+
+{% if builds %}
+<div class="cf-panel">
+  <table class="cf-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>ID</th>
+        <th>Loader</th>
+        <th>Minecraft</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in builds %}
+      <tr>
+        <td><strong>{{ b.name or b.display_name or '—' }}</strong></td>
+        <td class="mono">{{ b.id or b.build_id or '—' }}</td>
+        <td>{{ b.loader or '—' }}</td>
+        <td>{{ b.minecraft_version or b.version or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="cf-hint">
+  Inspect: <code>cf-agent build-manifest &lt;id&gt;</code> ·
+  Provision: <code>cf-agent build --new --build &lt;id&gt;</code> ·
+  Dump JSON: add <code>--dump-json path.json</code>
+</p>
+{% else %}
+<div class="cf-panel">
+  <p class="cf-hint">No builds listed. Log in with a guild that has published builds, then refresh.</p>
+</div>
+{% endif %}
+{% endblock %}

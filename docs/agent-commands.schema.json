@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cultforge.com/schemas/agent-commands.schema.json",
+  "title": "CultAgentCommandProfile.config",
+  "type": "object",
+  "required": ["schema_version"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "cli": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "prompt": { "type": "string" },
+        "language": { "type": "string", "enum": ["cagl"] }
+      }
+    },
+    "builtins": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "aliases": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "required": ["action"],
+            "properties": {
+              "action": { "type": "string" },
+              "payload": { "type": "object" }
+            }
+          }
+        ]
+      }
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["action"],
+        "properties": {
+          "action": { "type": "string" },
+          "description": { "type": "string" },
+          "risk": { "type": "string", "enum": ["normal", "elevated", "high"] },
+          "confirm": { "type": "boolean" },
+          "payload_template": { "type": "object" },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "required": { "type": "boolean" }
+              }
+            }
+          },
+          "runner": { "type": "string", "enum": ["local"] },
+          "script_id": { "type": "string" }
+        }
+      }
+    },
+    "events_hooks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "object" }
+      }
+    }
+  }
+}

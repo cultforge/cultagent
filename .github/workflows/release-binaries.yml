@@ -1,0 +1,197 @@
+name: Release cf-agent binaries
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "scripts/build_release.py"
+      - "pyproject.toml"
+      - ".github/workflows/release-binaries.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform_key: windows-amd64
+          - os: ubuntu-22.04
+            platform_key: linux-amd64
+          - os: macos-14
+            platform_key: darwin-arm64
+          - os: macos-13
+            platform_key: darwin-amd64
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install native build tools (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential ccache patchelf
+
+      - name: Install
+        run: |
+          python -m pip install -U pip
+          pip install -e ".[dev,release]"
+
+      - name: Test (pytest)
+        env:
+          PYTHONPATH: src
+        run: python -m pytest -q
+
+      - name: Build panel SPA (optional)
+        working-directory: panel-ui
+        run: |
+          if [ -f package.json ]; then npm ci && npm run build; fi
+        shell: bash
+        continue-on-error: true
+
+      - name: Resolve release asset base URL
+        id: base
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+            echo "url=https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}" >> "$GITHUB_OUTPUT"
+          else
+            # Non-tag runs still produce latest.json; links resolve once a matching tag ships.
+            VER=$(python -c "from cultagent import __version__; print(__version__)")
+            echo "url=https://github.com/${GITHUB_REPOSITORY}/releases/download/v${VER}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build binary (Nuitka) + latest.json
+        env:
+          CULTAGENT_RELEASE_BASE_URL: ${{ steps.base.outputs.url }}
+        run: python scripts/build_release.py
+
+      - name: Smoke-test binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          BIN=$(ls dist/cf-agent-* | grep -v latest.json | head -n1)
+          echo "Smoke: $BIN"
+          chmod +x "$BIN" || true
+          "$BIN" --help
+          "$BIN" doctor || true
+
+      - name: Upload dist artifacts
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cf-agent-${{ matrix.platform_key }}
+          path: |
+            dist/cf-agent-*
+            dist/latest.json
+          if-no-files-found: error
+
+  merge-latest:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Merge latest.json + collect binaries
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF: ${{ github.ref }}
+        run: |
+          python <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          root = Path("release-out")
+          root.mkdir(exist_ok=True)
+          platforms = {}
+          version = None
+          repo = os.environ.get("GITHUB_REPOSITORY", "CultForge/cultserve")
+          ref = os.environ.get("GITHUB_REF", "")
+          if ref.startswith("refs/tags/"):
+              tag = ref[len("refs/tags/") :]
+          else:
+              tag = None
+
+          for art in Path("artifacts").iterdir():
+              if not art.is_dir():
+                  continue
+              latest = art / "latest.json"
+              if latest.is_file():
+                  data = json.loads(latest.read_text(encoding="utf-8"))
+                  version = data.get("version") or version
+                  plats = data.get("platforms") or {}
+                  if isinstance(plats, dict):
+                      platforms.update(plats)
+              for f in art.glob("cf-agent-*"):
+                  if f.name == "latest.json":
+                      continue
+                  shutil.copy2(f, root / f.name)
+
+          if not version:
+              version = "0.0.0"
+          if not tag:
+              tag = f"v{version}"
+
+          base = f"https://github.com/{repo}/releases/download/{tag}"
+          # Rewrite filelinks to GitHub Release assets
+          for key, entry in list(platforms.items()):
+              if not isinstance(entry, dict):
+                  continue
+              name = entry.get("filename")
+              if name:
+                  entry = dict(entry)
+                  entry["filelink"] = f"{base}/{name}"
+                  platforms[key] = entry
+
+          flat = platforms.get("windows-amd64") or (next(iter(platforms.values())) if platforms else {})
+          out = {
+              "version": version,
+              "hash": flat.get("hash"),
+              "filelink": flat.get("filelink"),
+              "platform": "windows-amd64" if "windows-amd64" in platforms else next(iter(platforms), None),
+              "released_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+              "platforms": platforms,
+          }
+          (root / "latest.json").write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
+          print(json.dumps(out, indent=2))
+          PY
+
+      - name: Upload merged release bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: cf-agent-release-bundle
+          path: release-out/*
+
+      - name: GitHub Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-out/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true

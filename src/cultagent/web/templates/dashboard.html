@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · CultAgent{% endblock %}
+{% block content %}
+{% set cpu = metrics.cpu_percent if metrics.cpu_percent is not none else 0 %}
+{% set mem = metrics.memory_percent if metrics.memory_percent is not none else 0 %}
+{% set disk = metrics.disk_percent if metrics.disk_percent is not none else 0 %}
+
+{% if not servers %}
+{# —— Aternos empty state —— #}
+<div class="cf-play-empty">
+  <img class="cf-play-empty-logo" src="/static/img/logo-disc.png" alt="" />
+  <h1>Create your Minecraft server</h1>
+  <p>Like Aternos, but on this machine. Install a server, press Start, share the join address.</p>
+  <a class="cf-btn btn primary cf-btn-xl" href="/panel/servers/new">Create server</a>
+  <p class="cf-hint" style="margin-top:1.25rem">Crafty-style tools (files, backups, console) unlock after you create one.</p>
+</div>
+{% else %}
+{% set p = primary.server %}
+{% set st = primary.status %}
+{% set running = st.state == 'running' %}
+
+{# —— Aternos Play hero —— #}
+<section class="cf-play-hero">
+  <div class="cf-play-hero-main">
+    <div class="cf-play-status-row">
+      <span class="cf-play-dot {% if running %}on{% elif st.state == 'crashed' %}err{% endif %}"></span>
+      <div>
+        <h1>{{ p.name }}</h1>
+        <p class="desc">
+          {% if primary.scope == 'guild' %}
+          <span class="cf-badge scope guild">Guild server</span>
+          {% elif primary.scope == 'personal' %}
+          <span class="cf-badge scope personal">Personal cloud</span>
+          {% else %}
+          <span class="cf-badge scope local">Local</span>
+          {% endif %}
+          {{ p.loader }}{% if p.minecraft_version %} · {{ p.minecraft_version }}{% endif %} · port {{ p.port }}
+        </p>
+      </div>
+    </div>
+    <div class="cf-play-meta">
+      <span>Status <strong class="{% if running %}live{% endif %}">{{ st.state }}</strong></span>
+      <span>Players <strong>{{ st.players if st.players is not none else 0 }}{% if st.max_players %} / {{ st.max_players }}{% endif %}</strong></span>
+      <span>Uptime <strong>{{ st.uptime_seconds if st.uptime_seconds is not none else '—' }}{% if st.uptime_seconds is not none %}s{% endif %}</strong></span>
+    </div>
+    <div class="cf-controls">
+      {% if running %}
+      <button class="cf-btn btn danger cf-btn-xl" data-server-id="{{ p.server_id }}" data-server-action="stop">Stop</button>
+      <button class="cf-btn btn cf-btn-xl" data-server-id="{{ p.server_id }}" data-server-action="restart">Restart</button>
+      {% else %}
+      <button class="cf-btn btn primary cf-btn-xl" data-server-id="{{ p.server_id }}" data-server-action="start">Start</button>
+      {% endif %}
+      <a class="cf-btn btn ghost cf-btn-xl" href="/panel/servers/{{ p.server_id }}">Open Crafty admin</a>
+    </div>
+  </div>
+
+  <div class="cf-join-card">
+    <h2>Join address</h2>
+    <p class="cf-join-primary mono" id="joinPrimary">{{ join.primary if join else ('localhost:' ~ p.port) }}</p>
+    <button type="button" class="cf-btn btn primary" data-copy="#joinPrimary">Copy address</button>
+    <dl class="cf-kv compact" style="margin-top:0.85rem">
+      <dt>This PC</dt>
+      <dd class="mono">{{ join.localhost if join else ('localhost:' ~ p.port) }}</dd>
+      {% if join and join.lan %}
+      <dt>LAN</dt>
+      <dd class="mono">{{ join.lan }}</dd>
+      {% endif %}
+      {% if join and join.public %}
+      <dt>Online</dt>
+      <dd class="mono">{{ join.public }}</dd>
+      {% else %}
+      <dt>Online</dt>
+      <dd class="muted">Not set — <a href="/panel/network">Play online with playit</a></dd>
+      {% endif %}
+    </dl>
+  </div>
+</section>
+
+{# —— Crafty host metrics —— #}
+<div class="grid metrics5" style="margin-top:1rem">
+  <div class="cf-panel">
+    <h2>CPU</h2>
+    <div class="cf-stat">{{ metrics.cpu_percent | default('—') }}{% if metrics.cpu_percent is not none %}%{% endif %}</div>
+    <div class="cf-meter"><span style="width: {{ [cpu, 100] | min }}%"></span></div>
+  </div>
+  <div class="cf-panel">
+    <h2>Memory</h2>
+    <div class="cf-stat">{{ metrics.memory_percent | default('—') }}{% if metrics.memory_percent is not none %}%{% endif %}</div>
+    <div class="stat-label">{{ metrics.memory_used_gb | default('—') }} / {{ metrics.memory_total_gb | default('—') }} GB</div>
+    <div class="cf-meter"><span style="width: {{ [mem, 100] | min }}%"></span></div>
+  </div>
+  <div class="cf-panel">
+    <h2>Disk</h2>
+    <div class="cf-stat">{{ metrics.disk_percent | default('—') }}{% if metrics.disk_percent is not none %}%{% endif %}</div>
+    <div class="cf-meter"><span style="width: {{ [disk, 100] | min }}%"></span></div>
+  </div>
+  <div class="cf-panel">
+    <h2>Fleet</h2>
+    <div class="cf-stat">{{ server_stats.total }}</div>
+    <div class="stat-label">{{ server_stats.running }} online · {{ server_stats.stopped }} stopped</div>
+  </div>
+  <div class="cf-panel">
+    <h2>Cloud</h2>
+    <div class="cf-stat" style="font-size:1.05rem">{{ identity.status | default('—') }}</div>
+    <div class="stat-label mono">{{ identity.guild_id or 'local only' }}</div>
+  </div>
+</div>
+
+<div class="cf-panel" style="margin-top:0.75rem">
+  <div class="cf-page-head" style="margin-bottom:0.4rem">
+    <h2 style="margin:0">All servers</h2>
+    <a class="cf-btn btn primary" href="/panel/servers/new">New server</a>
+  </div>
+  <div class="cf-fleet">
+    {% for row in servers %}
+    <div class="cf-fleet-row">
+      <div>
+        <a class="title" href="/panel/servers/{{ row.server.server_id }}">{{ row.server.name }}</a>
+        <div class="sub">
+          {% if row.scope == 'guild' %}<span class="cf-badge scope guild">Guild</span>{% elif row.scope == 'personal' %}<span class="cf-badge scope personal">Personal</span>{% else %}<span class="cf-badge scope local">Local</span>{% endif %}
+          {{ row.server.loader or '—' }} · :{{ row.server.port }}
+        </div>
+      </div>
+      <div class="muted">{{ row.server.minecraft_version or '—' }}</div>
+      <div><span class="cf-badge badge {% if row.status.state == 'running' %}ok{% elif row.status.state == 'crashed' %}danger{% endif %}">{{ row.status.state }}</span></div>
+      <div class="actions">
+        <button class="cf-btn btn primary" data-server-id="{{ row.server.server_id }}" data-server-action="start">Start</button>
+        <button class="cf-btn btn" data-server-id="{{ row.server.server_id }}" data-server-action="restart">Restart</button>
+        <button class="cf-btn btn danger" data-server-id="{{ row.server.server_id }}" data-server-action="stop">Stop</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

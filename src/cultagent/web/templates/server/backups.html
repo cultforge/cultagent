@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Backups · {{ server.name }}{% endblock %}
+{% block page_title %}Backups · {{ server.name }}{% endblock %}
+{% block content %}
+<div class="cf-page-head">
+  <p class="muted" style="margin:0">Zip snapshots of the server directory.</p>
+  <button class="cf-btn btn primary" id="backupCreate">Create backup</button>
+</div>
+<div class="cf-panel card">
+  {% if not backups %}
+  <p class="empty">No backups yet.</p>
+  {% else %}
+  <table class="cf-table table">
+    <thead><tr><th>Name</th><th>Size</th><th>Modified</th><th></th></tr></thead>
+    <tbody>
+      {% for b in backups %}
+      <tr>
+        <td class="mono">{{ b.name }}</td>
+        <td>{{ b.size }}</td>
+        <td>{{ b.mtime }}</td>
+        <td><button class="cf-btn btn danger" data-restore="{{ b.path }}">Restore</button></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  window.SERVER_ID = {{ server.server_id | tojson }};
+  document.getElementById("backupCreate").onclick = async () => {
+    const flash = document.getElementById("flash");
+    try {
+      await CultPanel.api(`/v1/servers/${window.SERVER_ID}/backups`, { method: "POST", body: "{}" });
+      CultPanel.toast(flash, "Backup created", true);
+      setTimeout(() => location.reload(), 500);
+    } catch (e) { CultPanel.toast(flash, e.message || String(e), false); }
+  };
+  document.querySelectorAll("[data-restore]").forEach((btn) => {
+    btn.onclick = async () => {
+      if (!confirm("Restore this backup over the server directory?")) return;
+      const flash = document.getElementById("flash");
+      try {
+        await CultPanel.api(`/v1/command`, {
+          method: "POST",
+          body: JSON.stringify({
+            command: "server.backup.restore",
+            resource_id: window.SERVER_ID,
+            params: { backup_path: btn.getAttribute("data-restore"), confirm: true },
+          }),
+        });
+        CultPanel.toast(flash, "Restore complete", true);
+      } catch (e) { CultPanel.toast(flash, e.message || String(e), false); }
+    };
+  });
+</script>
+{% endblock %}

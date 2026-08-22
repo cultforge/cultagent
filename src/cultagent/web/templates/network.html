@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Network · CultAgent{% endblock %}
+{% block content %}
+{% set d = network.details or {} %}
+{% set plat = d.platform or {} %}
+{% set has_secret = d.has_secret %}
+{% set has_binary = d.binary %}
+{% set setup_url = d.setup_url or d.setup_claim_url or 'https://playit.gg/account/setup/wizard/new-account/computer/claim-code' %}
+{% set secret_url = d.setup_secret_url or 'https://playit.gg/account/setup/wizard/new-account/docker/docker-name' %}
+{% set agents_url = d.agents_url or 'https://playit.gg/account/agents' %}
+{% set download_url = d.download_url or 'https://playit.gg/download' %}
+{% set support_url = d.support_url or 'https://playit.gg/support/' %}
+{% set port = (network.target or '127.0.0.1:25565').split(':')[-1] %}
+
+<div class="cf-hero">
+  <div class="cf-hero-left">
+    <img class="cf-hero-icon" src="/static/img/logo-disc.png" alt="" />
+    <div>
+      <h1>Network</h1>
+      <p class="desc">Official playit.gg agent — Windows, Linux, and macOS. Secrets stay on this machine.</p>
+      <div class="cf-tags">
+        <span class="cf-tag">{{ network.active or network.provider or 'direct' }}</span>
+        <span class="cf-tag">{{ network.status or '—' }}</span>
+        {% if plat.platform %}<span class="cf-tag">{{ plat.platform }}</span>{% endif %}
+        {% if d.release_pin %}<span class="cf-tag">{{ d.release_pin }}</span>{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid mid2" style="gap:1rem; align-items:start">
+  <div class="cf-panel">
+    <h2>Status</h2>
+    <dl class="cf-kv cloud">
+      <dt>Provider</dt>
+      <dd>{{ network.active or network.provider or '—' }}</dd>
+      <dt>Status</dt>
+      <dd>{{ network.status or '—' }}</dd>
+      <dt>Target</dt>
+      <dd class="mono">{{ network.target or '—' }}</dd>
+      <dt>Public join</dt>
+      <dd class="mono" id="netPublic">{{ network.public_join or network.public_endpoint or '—' }}</dd>
+      <dt>Secret</dt>
+      <dd>{{ 'set (playit.toml)' if has_secret else 'missing' }}</dd>
+      <dt>Binary</dt>
+      <dd class="mono">{{ d.binary or 'not installed' }}</dd>
+      <dt>IPC</dt>
+      <dd class="mono">{{ d.socket_path or '—' }}</dd>
+      {% if d.tunnel_count is not none %}
+      <dt>Tunnels</dt>
+      <dd>{{ d.tunnel_count }}</dd>
+      {% endif %}
+      {% if d.last_error %}
+      <dt>Last error</dt>
+      <dd class="muted">{{ d.last_error }}</dd>
+      {% endif %}
+    </dl>
+    {% if network.public_join or network.public_endpoint %}
+    <div class="actions" style="margin-top:0.75rem">
+      <button type="button" class="cf-btn btn primary" data-copy="#netPublic">Copy public join</button>
+    </div>
+    {% endif %}
+    <p class="cf-hint">
+      <a href="{{ support_url }}" target="_blank" rel="noopener">playit.gg support</a> ·
+      <a href="{{ agents_url }}" target="_blank" rel="noopener">agents / tunnels</a> ·
+      <a href="{{ download_url }}" target="_blank" rel="noopener">download</a>
+    </p>
+  </div>
+
+  <div class="cf-panel">
+    <h2>Play online</h2>
+    <ol class="cf-playit-steps">
+      <li class="{% if has_binary %}done{% endif %}">
+        <strong>1. Set up playit (this OS)</strong>
+        {% if plat.platform == 'macos' %}
+        <p class="muted">macOS has no GitHub release binary yet. Compile from
+          <a href="https://github.com/playit-cloud/playit-agent" target="_blank" rel="noopener">source</a>
+          or use Docker, then set <code>network.playit.binary_path</code>.
+          Setup still opens the
+          <a href="{{ setup_url }}" target="_blank" rel="noopener">claim wizard</a>.
+          See <a href="https://playit.gg/download/macos" target="_blank" rel="noopener">download/macos</a>.</p>
+        {% elif plat.platform == 'linux' %}
+        <p class="muted">Downloads the official binary, then opens the
+          <a href="{{ setup_url }}" target="_blank" rel="noopener">computer claim-code wizard</a>.
+          Apt alternative:
+          <a href="https://playit.gg/support/how-to-run-playit-gg-on-linux/" target="_blank" rel="noopener">Linux install guide</a>.</p>
+        {% else %}
+        <p class="muted">Downloads the official Windows/Linux release, then opens the
+          <a href="{{ setup_url }}" target="_blank" rel="noopener">claim-code wizard</a>.
+          If you see <code>VCRUNTIME140.dll</code>, install
+          <a href="https://playit.gg/support/vcruntime140-dll-was-not-found/" target="_blank" rel="noopener">VC++ redistributable</a>.</p>
+        {% endif %}
+        <button type="button" class="cf-btn btn" id="playitSetup" data-setup-url="{{ setup_url }}">
+          {% if has_binary %}Refresh setup / claim code{% else %}Set up playit{% endif %}
+        </button>
+        {% if d.claim_code %}
+        <p class="muted" style="margin-top:0.5rem">Current claim code:
+          <code class="mono" id="claimCode">{{ d.claim_code }}</code>
+          {% if d.claim_url %}
+          · <a href="{{ d.claim_url }}" target="_blank" rel="noopener">open claim link</a>
+          {% endif %}
+        </p>
+        <p class="muted">Browser will say “Waiting for agent…” — click Finish claim (do not paste the URL).</p>
+        <button type="button" class="cf-btn btn primary" id="playitClaimWait" data-claim-code="{{ d.claim_code }}">
+          Finish claim
+        </button>
+        {% endif %}
+        <div class="actions" style="margin-top:0.5rem">
+          <button type="button" class="cf-btn btn" id="playitReset">Reset playit (clear secret)</button>
+        </div>
+      </li>
+      <li class="{% if has_secret %}done{% endif %}">
+        <strong>2. Paste hex agent secret</strong>
+        <p class="muted">
+          After approving
+          {% if d.claim_url %}<a href="{{ d.claim_url }}" target="_blank" rel="noopener">your claim link</a>{% else %}the claim{% endif %},
+          paste the hex key here (or use the
+          <a href="{{ secret_url }}" target="_blank" rel="noopener">docker/secret page</a>).
+          Stored as <code>playit.toml</code> only on this PC.
+        </p>
+        <form id="playitSecretForm" class="form-grid" style="margin-top:0.35rem">
+          <label>Secret key
+            <input name="secret" type="password" autocomplete="off" placeholder="{% if has_secret %}•••• already set — paste hex to replace{% else %}paste hex secret key{% endif %}" />
+          </label>
+          <button class="cf-btn btn" type="submit">Save secret</button>
+        </form>
+      </li>
+      <li class="{% if network.public_join or network.public_endpoint or d.tunnel_count %}done{% endif %}">
+        <strong>3. Minecraft Java tunnel</strong>
+        <p class="muted">
+          CultAgent creates this via the playit API (local
+          <code>127.0.0.1:{{ port }}</code>). Or open
+          <a href="{{ agents_url }}" target="_blank" rel="noopener">agents / tunnels</a>.
+          Join issues:
+          <a href="https://playit.gg/support/fixing-unknown-host-in-minecraft-java/" target="_blank" rel="noopener">unknown host</a>,
+          <a href="https://playit.gg/support/fixing-timeout-errors-with-minecraft/" target="_blank" rel="noopener">timeouts</a>.
+        </p>
+        <div class="actions">
+          <button type="button" class="cf-btn btn" id="playitTunnel">Ensure Minecraft tunnel</button>
+        </div>
+      </li>
+      <li>
+        <strong>4. Start agent</strong>
+        <p class="muted">Starts the official playit binary and ensures the tunnel above.</p>
+        <div class="actions">
+          <button type="button" class="cf-btn btn primary" id="playitStart">Use playit &amp; start</button>
+          <button type="button" class="cf-btn btn danger" id="playitStop">Stop playit</button>
+          <button type="button" class="cf-btn btn ghost" id="networkDirect">Use direct / LAN only</button>
+        </div>
+      </li>
+    </ol>
+  </div>
+</div>
+
+{% if plat.install_methods %}
+<div class="cf-panel" style="margin-top:1rem; max-width:960px">
+  <h2>Platform notes · {{ plat.platform or 'host' }}</h2>
+  <ul class="muted" style="margin:0.35rem 0 0.75rem 1.1rem; line-height:1.5">
+    {% for m in plat.install_methods %}
+    <li>{{ m }}</li>
+    {% endfor %}
+  </ul>
+  {% if plat.notes %}
+  <ul class="muted" style="margin:0 0 0.75rem 1.1rem; line-height:1.5">
+    {% for n in plat.notes %}
+    <li>{{ n }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if plat.apt_snippet %}
+  <pre class="mono" style="overflow:auto; font-size:0.75rem">{{ plat.apt_snippet }}</pre>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/network.js"></script>
+{% endblock %}

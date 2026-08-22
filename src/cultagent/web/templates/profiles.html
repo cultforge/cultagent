@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}Profiles · CultAgent{% endblock %}
+{% block content %}
+<div class="cf-hero">
+  <div class="cf-hero-left">
+    <img class="cf-hero-icon" src="/static/img/logo-disc.png" alt="" />
+    <div>
+      <h1>Config profiles</h1>
+      <p class="desc">Reusable server.properties snapshots. Diff before apply.</p>
+    </div>
+  </div>
+</div>
+
+<div id="flash" class="cf-flash" hidden></div>
+
+<div class="cf-panel" style="max-width:720px; margin-bottom:1rem">
+  <h2>Capture</h2>
+  <form id="captureForm" class="form-grid">
+    <label>Profile name
+      <input name="name" required placeholder="production" />
+    </label>
+    <label>From server
+      <select name="server_id" required>
+        {% for s in servers %}
+        <option value="{{ s.server_id }}">{{ s.name }} ({{ s.server_id }})</option>
+        {% else %}
+        <option value="" disabled>No servers</option>
+        {% endfor %}
+      </select>
+    </label>
+    <div class="actions">
+      <button class="cf-btn btn primary" type="submit">Capture current properties</button>
+    </div>
+  </form>
+</div>
+
+<div class="cf-panel" style="max-width:720px; margin-bottom:1rem">
+  <h2>Apply</h2>
+  <form id="applyForm" class="form-grid">
+    <label>Profile
+      <select name="profile" required>
+        {% for p in profiles %}
+        <option value="{{ p.name }}">{{ p.name }} ({{ p.keys }} keys)</option>
+        {% else %}
+        <option value="" disabled>No profiles yet</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Target server
+      <select name="server_id" required>
+        {% for s in servers %}
+        <option value="{{ s.server_id }}">{{ s.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Mode
+      <select name="mode">
+        <option value="merge">merge</option>
+        <option value="replace">replace</option>
+      </select>
+    </label>
+    <div class="actions">
+      <button class="cf-btn btn ghost" type="button" id="diffBtn">Preview diff</button>
+      <button class="cf-btn btn primary" type="submit">Apply with confirm</button>
+    </div>
+  </form>
+  <pre class="mono" id="diffOut" style="margin-top:0.75rem; min-height:3rem"></pre>
+</div>
+
+<div class="cf-panel" style="max-width:720px">
+  <h2>Saved profiles</h2>
+  {% if profiles %}
+  <ul class="cf-list">
+    {% for p in profiles %}
+    <li>
+      <strong>{{ p.name }}</strong>
+      <span class="muted">{{ p.keys }} keys</span>
+      {% if p.description %}<div class="muted">{{ p.description }}</div>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">No profiles yet. Capture from a server above.</p>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  const flash = document.getElementById("flash");
+  const diffOut = document.getElementById("diffOut");
+
+  document.getElementById("captureForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    try {
+      await CultPanel.api("/v1/command", {
+        method: "POST",
+        body: JSON.stringify({
+          command: "config.profile.capture",
+          resource_id: fd.get("server_id"),
+          params: { name: fd.get("name"), server_id: fd.get("server_id") },
+        }),
+      });
+      CultPanel.toast(flash, "Profile captured", true);
+      location.reload();
+    } catch (err) {
+      CultPanel.toast(flash, err.message || String(err), false);
+    }
+  });
+
+  async function previewDiff() {
+    const form = document.getElementById("applyForm");
+    const fd = new FormData(form);
+    const res = await CultPanel.api("/v1/command", {
+      method: "POST",
+      body: JSON.stringify({
+        command: "config.profile.apply",
+        resource_id: fd.get("server_id"),
+        params: {
+          name: fd.get("profile"),
+          server_id: fd.get("server_id"),
+          mode: fd.get("mode"),
+          dry_run: true,
+        },
+      }),
+    });
+    const data = res.data || res;
+    diffOut.textContent = JSON.stringify(data.changes || {}, null, 2);
+    return data;
+  }
+
+  document.getElementById("diffBtn").addEventListener("click", async () => {
+    try {
+      await previewDiff();
+    } catch (err) {
+      CultPanel.toast(flash, err.message || String(err), false);
+    }
+  });
+
+  document.getElementById("applyForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    try {
+      const preview = await previewDiff();
+      const count = Object.keys(preview.changes || {}).length;
+      if (!count) {
+        CultPanel.toast(flash, "No changes to apply", true);
+        return;
+      }
+      if (!confirm(`Apply ${count} change(s)?`)) return;
+      await CultPanel.api("/v1/command", {
+        method: "POST",
+        body: JSON.stringify({
+          command: "config.profile.apply",
+          resource_id: fd.get("server_id"),
+          params: {
+            name: fd.get("profile"),
+            server_id: fd.get("server_id"),
+            mode: fd.get("mode"),
+            confirm: true,
+          },
+        }),
+      });
+      CultPanel.toast(flash, "Profile applied", true);
+    } catch (err) {
+      CultPanel.toast(flash, err.message || String(err), false);
+    }
+  });
+</script>
+{% endblock %}

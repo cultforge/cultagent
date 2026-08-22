@@ -90,6 +90,8 @@ def _run_nuitka() -> Path:
         "--output-filename=" + out_name,
         "--include-package=cultagent",
         "--include-package-data=cultagent",
+        # yaspin.spinners loads data/spinners.json via pkgutil.get_data
+        "--include-package-data=yaspin",
         "--include-module=uvicorn.logging",
         "--include-module=uvicorn.loops",
         "--include-module=uvicorn.loops.auto",

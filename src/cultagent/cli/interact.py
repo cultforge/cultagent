@@ -46,14 +46,17 @@ def spinner(text: str = "Working…"):
     try:
         from yaspin import yaspin
         from yaspin.spinners import Spinners
-    except ImportError:
-        with console.status(f"[cyan]{text}[/cyan]", spinner="dots"):
-            yield None
-        return
 
-    # Avoid color/attrs on Windows consoles that warn; Spinners.line is ASCII-safe.
-    with yaspin(Spinners.line, text=text) as sp:
-        yield sp
+        # Avoid color/attrs on Windows consoles that warn; Spinners.line is ASCII-safe.
+        # Spinners loads package data (spinners.json) — missing in some frozen builds.
+        with yaspin(Spinners.line, text=text) as sp:
+            yield sp
+            return
+    except Exception:  # noqa: BLE001 — ImportError, FileNotFoundError, frozen-data gaps
+        pass
+
+    with console.status(f"[cyan]{text}[/cyan]", spinner="dots"):
+        yield None
 
 
 def confirm(message: str, *, default: bool = False) -> bool:

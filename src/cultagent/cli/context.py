@@ -212,10 +212,20 @@ def command_allowed(mode: CliMode, command_name: str) -> bool:
     return canonical in allowed_commands(mode)
 
 
-def ensure_command_allowed(command_name: str, config_path: str | Path | None = None) -> CliMode:
+def ensure_command_allowed(
+    command_name: str,
+    config_path: str | Path | None = None,
+    *,
+    ctx: typer.Context | None = None,
+) -> CliMode:
     import sys
 
-    if "--help" in sys.argv or "-h" in sys.argv:
+    # Real CLI: argv contains --help. Tests (CliRunner): rely on ctx.resilient_parsing.
+    if (
+        (ctx is not None and ctx.resilient_parsing)
+        or "--help" in sys.argv
+        or "-h" in sys.argv
+    ):
         mode, _ = detect_cli_mode(config_path)
         return mode
 

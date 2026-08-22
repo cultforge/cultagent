@@ -10,6 +10,7 @@ from typing import Any, Optional
 
 import typer
 from rich import print as rprint
+from typer.core import TyperGroup
 
 from cultagent import __product__, __version__
 from cultagent.app import create_app
@@ -60,15 +61,53 @@ from cultagent.service import (
 )
 from cultagent.settings import write_example_config
 
+
+class ModeGatedGroup(TyperGroup):
+    """Gate commands in ``invoke`` after Click has handled ``--help``.
+
+    Help is emitted in ``make_context`` / ``parse_args`` and never reaches
+    ``command.invoke``, so cloud help works on unregistered CI machines.
+    """
+
+    def invoke(self, ctx: typer.Context) -> Any:
+        from cultagent.cli.context import ensure_command_allowed
+
+        original_get = self.get_command
+
+        def get_command_gated(ctx_inner: typer.Context, cmd_name: str) -> Any:
+            cmd = original_get(ctx_inner, cmd_name)
+            if cmd is None:
+                return None
+            original_invoke = cmd.invoke
+
+            def invoke_gated(sub_ctx: typer.Context) -> Any:
+                config = ctx_inner.params.get("config")
+                obj = ctx_inner.obj
+                if isinstance(obj, dict) and "config" in obj:
+                    config = obj.get("config", config)
+                ensure_command_allowed(cmd_name, config)
+                return original_invoke(sub_ctx)
+
+            cmd.invoke = invoke_gated  # type: ignore[method-assign]
+            return cmd
+
+        self.get_command = get_command_gated  # type: ignore[method-assign]
+        try:
+            return super().invoke(ctx)
+        finally:
+            self.get_command = original_get  # type: ignore[method-assign]
+
+
 app = typer.Typer(
     name="cf-agent",
     help="CultForge Agent — local machine-side execution layer.",
     no_args_is_help=False,
     invoke_without_command=True,
     add_completion=False,
+    cls=ModeGatedGroup,
 )
 
-service_app = typer.Typer(help="Background service helpers.")
+service_app = typer.Typer(help="Background service helpers.", cls=ModeGatedGroup)
 app.add_typer(service_app, name="service")
 
 
@@ -150,12 +189,13 @@ def main_callback(
 ) -> None:
     """CultForge Agent CLI."""
     from cultagent.cli.context import (
-        ensure_command_allowed,
         print_mode_help,
         validated_config_path,
     )
 
     config = validated_config_path(config)
+    ctx.ensure_object(dict)
+    ctx.obj["config"] = config
     set_capture_json(capture_json)
     if clear_cache:
         agent = create_app(str(config) if config else None)
@@ -176,7 +216,7 @@ def main_callback(
     if ctx.invoked_subcommand is None:
         print_mode_help(app, config)
         raise typer.Exit(code=0)
-    ensure_command_allowed(ctx.invoked_subcommand, config)
+    # Mode gating runs in ModeGatedCommand.invoke (skipped for --help).
 
 
 @app.command("help")

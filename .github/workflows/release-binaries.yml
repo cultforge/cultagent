@@ -2,6 +2,11 @@ name: Release cf-agent binaries
 
 on:
   workflow_dispatch:
+    inputs:
+      include_darwin_amd64:
+        description: "Also build Intel Mac on scarce macos-13 (often queues forever)"
+        type: boolean
+        default: false
   push:
     tags:
       - "v*"
@@ -17,19 +22,46 @@ permissions:
   contents: write
 
 jobs:
+  # Build the matrix in a prior job — job-level `if` cannot reference `matrix`.
+  select:
+    runs-on: ubuntu-latest
+    outputs:
+      include: ${{ steps.set.outputs.include }}
+    steps:
+      - id: set
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INCLUDE_DARWIN_AMD64: ${{ github.event.inputs.include_darwin_amd64 }}
+        run: |
+          python3 <<'PY'
+          import json, os
+
+          rows = [
+              {"os": "windows-latest", "platform_key": "windows-amd64"},
+              {"os": "ubuntu-22.04", "platform_key": "linux-amd64"},
+              {"os": "macos-14", "platform_key": "darwin-arm64"},
+          ]
+          # macos-13 (Intel) is opt-in only — GitHub runners are scarce and queue for hours.
+          want_intel = os.environ.get("EVENT_NAME") == "workflow_dispatch" and (
+              os.environ.get("INCLUDE_DARWIN_AMD64", "false").lower() in ("1", "true", "yes")
+          )
+          if want_intel:
+              rows.append({"os": "macos-13", "platform_key": "darwin-amd64"})
+
+          include = json.dumps(rows)
+          print("include:", include)
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+              f.write(f"include={include}\n")
+          PY
+
   build:
+    needs: select
+    if: needs.select.outputs.include != '[]'
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: windows-latest
-            platform_key: windows-amd64
-          - os: ubuntu-22.04
-            platform_key: linux-amd64
-          - os: macos-14
-            platform_key: darwin-arm64
-          - os: macos-13
-            platform_key: darwin-amd64
+        include: ${{ fromJSON(needs.select.outputs.include) }}
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120

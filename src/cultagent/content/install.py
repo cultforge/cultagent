@@ -31,19 +31,96 @@ _KIND_DIRS = {
     "config": "config",
 }
 
+_CONTENT_ROOT_FOLDERS = ("mods", "resourcepacks", "shaderpacks", "datapacks", "plugins")
 
-def resolve_entry_path(entry: dict[str, Any]) -> str:
-    """Normalize relative install path; place bare filenames under kind dirs."""
+
+def read_level_name(server_root: Path) -> str:
+    """Active world folder from server.properties (default ``world``)."""
+    props = Path(server_root) / "server.properties"
+    if not props.is_file():
+        return "world"
+    try:
+        for line in props.read_text(encoding="utf-8", errors="replace").splitlines():
+            raw = line.strip()
+            if not raw or raw.startswith("#") or "=" not in raw:
+                continue
+            key, _, value = raw.partition("=")
+            if key.strip() == "level-name":
+                name = value.strip() or "world"
+                # Reject path traversal / absolute paths
+                if "/" in name or "\\" in name or name in {".", ".."}:
+                    return "world"
+                return name
+    except OSError:
+        pass
+    return "world"
+
+
+def datapack_dir(server_root: Path) -> Path:
+    """Minecraft loads datapacks from ``<level-name>/datapacks/``, not server-root."""
+    return Path(server_root) / read_level_name(server_root) / "datapacks"
+
+
+def resolve_entry_path(entry: dict[str, Any], server_root: Path | None = None) -> str:
+    """Normalize relative install path; place bare filenames under kind dirs.
+
+    Datapacks always target ``{level-name}/datapacks/…`` so the server actually
+    loads them (vanilla / Forge / NeoForge).
+    """
     rel = str(entry.get("path") or "").replace("\\", "/").lstrip("/")
     kind = str(entry.get("kind") or "").lower().replace(" ", "")
     if not rel:
         return rel
-    if "/" in rel or "\\" in rel:
+
+    # Remap legacy / mistaken server-root datapacks/… → world/datapacks/…
+    lower = rel.lower()
+    if lower.startswith("datapacks/") or kind in {"datapack", "datapacks", "data_pack"}:
+        name = Path(rel).name
+        if server_root is not None:
+            level = read_level_name(server_root)
+            return f"{level}/datapacks/{name}"
+        return f"world/datapacks/{name}"
+
+    if "/" in rel:
         return rel
     folder = _KIND_DIRS.get(kind)
+    if folder == "datapacks":
+        if server_root is not None:
+            level = read_level_name(server_root)
+            return f"{level}/datapacks/{rel}"
+        return f"world/datapacks/{rel}"
     if folder:
         return f"{folder}/{rel}"
     return rel
+
+
+def migrate_root_datapacks(server_root: Path) -> list[str]:
+    """Move leftover ``server/datapacks/*`` into the active world datapacks folder."""
+    root = Path(server_root).resolve()
+    legacy = root / "datapacks"
+    if not legacy.is_dir():
+        return []
+    dest = datapack_dir(root)
+    dest.mkdir(parents=True, exist_ok=True)
+    moved: list[str] = []
+    for item in list(legacy.iterdir()):
+        if not item.is_file():
+            continue
+        target = dest / item.name
+        try:
+            if target.exists():
+                item.unlink(missing_ok=True)
+            else:
+                shutil.move(str(item), str(target))
+                moved.append(str(target.relative_to(root)).replace("\\", "/"))
+        except OSError as exc:
+            logger.warning("datapack migrate %s failed: %s", item.name, exc)
+    try:
+        if legacy.is_dir() and not any(legacy.iterdir()):
+            legacy.rmdir()
+    except OSError:
+        pass
+    return moved
 
 
 def _safe_join(root: Path, relative: str) -> Path:
@@ -183,9 +260,21 @@ async def _download(
     raise RuntimeError(f"all download URLs failed: {last_error}")
 
 
+def _is_datapack_entry(entry: dict[str, Any]) -> bool:
+    kind = str(entry.get("kind") or "").lower().replace(" ", "")
+    if kind in {"datapack", "datapacks", "data_pack"}:
+        return True
+    path = str(entry.get("path") or "").replace("\\", "/").lower()
+    return path.startswith("datapacks/") or "/datapacks/" in path
+
+
 def _should_install_file(entry: dict[str, Any], *, server_side: bool = True) -> bool:
     if entry.get("optional") and entry.get("skip_optional"):
         return False
+    # Datapacks load from the world folder on dedicated servers — never treat as
+    # client-only even if the chambered build marks env=client.
+    if _is_datapack_entry(entry):
+        return True
     env = str(entry.get("env") or "both").lower()
     if server_side and env == "client":
         return False
@@ -241,6 +330,12 @@ async def install_manifest(
     excludes = list(manifest.get("excludes") or [])
     warnings = list(manifest.get("warnings") or [])
     unresolved = list(manifest.get("unresolved") or [])
+
+    # Ensure world datapacks folder exists and migrate any root-level leftovers.
+    migrated = migrate_root_datapacks(server_root)
+    if migrated:
+        warnings.append(f"migrated {len(migrated)} datapack(s) into world folder")
+    datapack_dir(server_root).mkdir(parents=True, exist_ok=True)
 
     if mode == "pending" or not files:
         return {
@@ -302,7 +397,7 @@ async def install_manifest(
                 )
                 continue
 
-            rel = resolve_entry_path(entry)
+            rel = resolve_entry_path(entry, server_root)
             urls = [str(u) for u in (entry.get("urls") or []) if u]
             if not rel or not urls:
                 errors.append(f"invalid file entry: {entry.get('path')}")

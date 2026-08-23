@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cultagent"
-version = "0.2.1"
+version = "0.2.2"
 description = "CultForge Agent — local machine-side execution layer for Minecraft servers"
 readme = "README.md"
 requires-python = ">=3.11"

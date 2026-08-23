@@ -51,6 +51,7 @@ LOCAL_COMMANDS: frozenset[str] = frozenset(
         "server-start",
         "server-stop",
         "server-remove",
+        "server-refresh",
         "console",
         "mods",
         "mod-install",
@@ -70,6 +71,7 @@ LOCAL_COMMANDS: frozenset[str] = frozenset(
         "profile-capture",
         "profile-apply",
         "profile-delete",
+        "update",
     }
 )
 
@@ -83,6 +85,7 @@ CLOUD_COMMANDS: frozenset[str] = frozenset(
         "cloud-health",
         "cloud-manifest",
         "update-check",
+        "update",
         "sidecar-list",
         "sidecar-issue",
         "sidecar-revoke",

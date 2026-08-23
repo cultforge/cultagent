@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from cultagent.updates import _pick_platform_entry, platform_key
+from cultagent.updates import _pick_platform_entry, is_newer, platform_key
 
 
 def test_platform_key_shape() -> None:
@@ -35,3 +35,10 @@ def test_pick_platform_entry_flat() -> None:
     }
     entry = _pick_platform_entry(data, "linux-amd64")
     assert entry["hash"] == "sha256:xyz"
+
+
+def test_is_newer() -> None:
+    assert is_newer("0.2.2", "0.2.1")
+    assert is_newer("0.3.0", "0.2.9")
+    assert not is_newer("0.2.1", "0.2.1")
+    assert not is_newer("0.2.0", "0.2.1")

@@ -94,6 +94,13 @@ def _run_nuitka() -> Path:
         "--include-package-data=yaspin",
         # websockets 12+ lazy-loads websockets.asyncio (cloud realtime)
         "--include-package=websockets",
+        "--include-module=websockets.asyncio",
+        "--include-module=websockets.asyncio.client",
+        "--include-module=websockets.asyncio.connection",
+        "--include-module=websockets.asyncio.server",
+        "--include-module=websockets.client",
+        "--include-module=websockets.legacy",
+        "--include-module=websockets.legacy.client",
         "--include-module=uvicorn.logging",
         "--include-module=uvicorn.loops",
         "--include-module=uvicorn.loops.auto",

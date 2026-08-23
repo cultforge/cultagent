@@ -874,6 +874,44 @@ def server_stop_cmd(
     asyncio.run(_run())
 
 
+@app.command("server-refresh")
+def server_refresh_cmd(
+    server_id: Optional[str] = typer.Argument(
+        None,
+        help="Local server id, or omit/? to pick",
+    ),
+    prune: bool = typer.Option(
+        True,
+        "--prune/--no-prune",
+        help="Remove mods/packs not listed in the chambered build manifest",
+    ),
+    config: Optional[Path] = typer.Option(None, "--config", "-c"),
+    dump_json: Optional[Path] = _dump_opt(),
+) -> None:
+    """Re-sync chambered build content: install missing, remove extras.
+
+    Pulls the latest build manifest for the server's chambered build, then
+    installs mods / resource packs / shader packs / datapacks and optionally
+    deletes unmanaged files under those folders.
+    """
+
+    async def _run() -> None:
+        agent = create_app(str(config) if config else None)
+        agent.bootstrap_identity()
+        sid = await _pick_server_id(agent, server_id)
+        with spinner(f"Refreshing content for {sid}…"):
+            result = await agent.dispatch(
+                "server.refresh",
+                resource_id=sid,
+                params={"prune": prune},
+            )
+        _emit(result, dump_json=dump_json, printer=print_result)
+        if not result.get("ok"):
+            raise typer.Exit(code=1)
+
+    asyncio.run(_run())
+
+
 @app.command("server-remove")
 def server_remove_cmd(
     server_id: Optional[str] = typer.Argument(
@@ -2075,13 +2113,60 @@ def update_check_cmd(
     config: Optional[Path] = typer.Option(None, "--config", "-c"),
     dump_json: Optional[Path] = _dump_opt(),
 ) -> None:
-    """Check cloud version feed (does not download or install)."""
+    """Check GitHub Releases / version feed (does not download or install)."""
 
     async def _run() -> None:
         agent = create_app(str(config) if config else None)
         with spinner("Checking for updates…"):
             result = await agent.dispatch("node.update.check")
         _emit(result, dump_json=dump_json, printer=print_result)
+
+    asyncio.run(_run())
+
+
+@app.command("update")
+def update_cmd(
+    yes: bool = typer.Option(
+        False,
+        "--yes",
+        "-y",
+        help="Apply without confirming when an update is available",
+    ),
+    config: Optional[Path] = typer.Option(None, "--config", "-c"),
+    dump_json: Optional[Path] = _dump_opt(),
+) -> None:
+    """Download and apply a newer cf-agent binary from GitHub Releases.
+
+    Only works for frozen (Nuitka/PyInstaller) builds. Dev installs should use
+    ``pip install -U`` / git pull instead.
+    """
+
+    async def _run() -> None:
+        agent = create_app(str(config) if config else None)
+        with spinner("Checking for updates…"):
+            check = await agent.dispatch("node.update.check")
+        _emit(check, dump_json=None, printer=print_result)
+        data = (check.get("data") or check) if isinstance(check, dict) else {}
+        if isinstance(data.get("data"), dict):
+            data = data["data"]
+        if not data.get("update_available"):
+            console.print("[dim]Already up to date.[/dim]")
+            return
+        latest = data.get("latest_version") or data.get("latest") or "?"
+        if not yes:
+            if not typer.confirm(f"Update to {latest} now?"):
+                raise typer.Exit(code=0)
+        with spinner(f"Downloading and applying {latest}…"):
+            result = await agent.dispatch(
+                "node.update.apply",
+                params={"force": False, "restart": False},
+            )
+        _emit(result, dump_json=dump_json, printer=print_result)
+        if not result.get("ok"):
+            raise typer.Exit(code=1)
+        console.print(
+            "[green]Update applied.[/green] Restart cf-agent to use the new binary."
+        )
 
     asyncio.run(_run())
 

@@ -325,6 +325,28 @@ async def builds_install(ctx: CommandContext) -> dict[str, Any]:
     )
 
 
+async def server_refresh(ctx: CommandContext) -> dict[str, Any]:
+    """Re-sync chambered build: install missing, prune extras, dedupe deps."""
+    assert ctx.app is not None
+    from cultagent.content.refresh import refresh_server_from_manifest
+
+    server_id = _server_id(ctx)
+    await ctx.app.audit.record(
+        actor_id=ctx.actor_id,
+        resource_id=server_id,
+        operation="server.refresh",
+    )
+    return await refresh_server_from_manifest(
+        app=ctx.app,
+        server_id=server_id,
+        build_id=str(ctx.params["build_id"]) if ctx.params.get("build_id") else None,
+        include_optional=bool(ctx.params.get("include_optional", False)),
+        prune=ctx.params.get("prune", True) is not False,
+        resolve_deps=ctx.params.get("resolve_deps", True) is not False,
+        install_platform=bool(ctx.params.get("install_platform", False)),
+    )
+
+
 async def builds_search(ctx: CommandContext) -> dict[str, Any]:
     assert ctx.app is not None
     builds = await ctx.app.builds.search_builds(
@@ -1176,16 +1198,29 @@ async def node_update_check(ctx: CommandContext) -> dict[str, Any]:
     return await check_for_update()
 
 
+async def node_update_apply(ctx: CommandContext) -> dict[str, Any]:
+    assert ctx.app is not None
+    from cultagent.updates import apply_update
+
+    await ctx.app.audit.record(actor_id=ctx.actor_id, operation="node.update.apply")
+    return await apply_update(
+        force=bool(ctx.params.get("force", False)),
+        restart=ctx.params.get("restart", True) is not False,
+    )
+
+
 def register_all(registry: CommandRegistry) -> None:
     registry.register("node.status", node_status)
     registry.register("node.metrics", node_metrics)
     registry.register("node.doctor", node_doctor)
     registry.register("node.update.check", node_update_check)
+    registry.register("node.update.apply", node_update_apply)
     registry.register("server.list", server_list)
     registry.register("server.status", server_status)
     registry.register("server.start", server_start)
     registry.register("server.stop", server_stop)
     registry.register("server.restart", server_restart)
+    registry.register("server.refresh", server_refresh)
     registry.register("server.console.read", server_console_read)
     registry.register("server.console.execute", server_console_execute)
     registry.register("server.config.read", server_config_read)

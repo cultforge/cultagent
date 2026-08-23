@@ -227,11 +227,14 @@ class BuildService:
             raise ValueError("invalid mod filename")
 
         # Search known content folders
+        from cultagent.content.install import datapack_dir
+
         candidates = [
             root / "mods" / name,
             root / "plugins" / name,
             root / "resourcepacks" / name,
             root / "datapacks" / name,
+            datapack_dir(root) / name,
             root / "shaderpacks" / name,
         ]
         target = next((p for p in candidates if p.is_file()), None)

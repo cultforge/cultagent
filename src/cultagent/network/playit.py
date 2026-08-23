@@ -626,15 +626,32 @@ class PlayitAgent:
             }
 
         claim: dict[str, str] | None = None
+        claim_error: str | None = None
         try:
             claim = self.generate_claim_code()
         except Exception as exc:  # noqa: BLE001
+            claim_error = str(exc)
             logger.warning("claim generate failed: %s", exc)
-            claim = None
+            # Daemon-only / wrong pin → force reinstall once and retry.
+            if platform_asset_name() and (
+                "no `claim` CLI" in claim_error
+                or "did not return a claim code" in claim_error
+                or not force
+            ):
+                try:
+                    self._cli_kind = None
+                    install_result = await self.install(force=True)
+                    claim = self.generate_claim_code()
+                    claim_error = None
+                except Exception as retry_exc:  # noqa: BLE001
+                    claim_error = str(retry_exc)
+                    logger.warning("claim generate retry failed: %s", retry_exc)
+                    claim = None
 
-        setup_url = claim["claim_url"] if claim else SETUP_CLAIM_CODE_PAGE
+        # Never open the empty claim-code form — only a real /claim/<code> URL.
+        setup_url = claim["claim_url"] if claim else None
         opened = False
-        if open_browser:
+        if open_browser and setup_url:
             import webbrowser
 
             try:
@@ -665,6 +682,7 @@ class PlayitAgent:
             browser_opened=opened,
             claim_code=(claim or {}).get("claim_code"),
             claim_url=(claim or {}).get("claim_url"),
+            claim_error=claim_error,
         )
         next_steps: list[str] = []
         if exchanged:
@@ -681,16 +699,18 @@ class PlayitAgent:
             ]
         else:
             next_steps = [
-                f"Open {SETUP_SECRET_URL} for a docker-style hex secret",
+                f"claim generate failed: {claim_error or 'unknown'}",
+                "Retry: cf-agent playit-setup --force",
+                f"Or paste a hex secret from {SETUP_SECRET_URL}",
                 "cf-agent playit-secret",
-                "cf-agent playit-start",
             ]
         return {
             **install_result,
-            "ok": True,
+            "ok": bool(claim) or exchanged or self.has_secret(),
             "setup_url": setup_url,
             "claim_code": (claim or {}).get("claim_code"),
             "claim_url": (claim or {}).get("claim_url"),
+            "claim_error": claim_error,
             "secret_wizard_url": SETUP_SECRET_URL,
             "agents_url": AGENTS_URL,
             "browser_opened": opened,

@@ -178,7 +178,12 @@ def _pick_primary_file(version: dict[str, Any]) -> dict[str, Any] | None:
 
 def _dest_dir(server_root: Path, project_type: str) -> Path:
     folder = _PROJECT_TYPE_DIRS.get(project_type, "mods")
-    dest = server_root / folder
+    if folder == "datapacks":
+        from cultagent.content.install import datapack_dir
+
+        dest = datapack_dir(server_root)
+    else:
+        dest = server_root / folder
     dest.mkdir(parents=True, exist_ok=True)
     return dest
 
@@ -307,14 +312,20 @@ def compatibility_report(
     }
 
 
-def _index_entry_for_project(root: Path, project_id: str) -> tuple[str, dict[str, Any]] | None:
+def _index_entries_for_project(root: Path, project_id: str) -> list[tuple[str, dict[str, Any]]]:
     index = load_index(root)
     entries = index.get("entries") if isinstance(index.get("entries"), dict) else {}
     pid = str(project_id)
+    out: list[tuple[str, dict[str, Any]]] = []
     for name, entry in entries.items():
         if isinstance(entry, dict) and str(entry.get("project_id") or "") == pid:
-            return str(name), entry
-    return None
+            out.append((str(name), entry))
+    return out
+
+
+def _index_entry_for_project(root: Path, project_id: str) -> tuple[str, dict[str, Any]] | None:
+    matches = _index_entries_for_project(root, project_id)
+    return matches[0] if matches else None
 
 
 def _remove_indexed_jar(root: Path, filename: str) -> None:
@@ -324,11 +335,83 @@ def _remove_indexed_jar(root: Path, filename: str) -> None:
         if path.is_file():
             path.unlink(missing_ok=True)
             break
+    # Also check world datapacks
+    try:
+        from cultagent.content.install import datapack_dir
+
+        dp = datapack_dir(root) / name
+        if dp.is_file():
+            dp.unlink(missing_ok=True)
+    except Exception:  # noqa: BLE001
+        pass
     index = load_index(root)
     entries = index.setdefault("entries", {})
     if isinstance(entries, dict):
         entries.pop(name, None)
         save_index(root, index)
+
+
+def _remove_all_project_jars(root: Path, project_id: str) -> list[str]:
+    """Remove every indexed jar for a Modrinth project (all versions / filenames)."""
+    removed: list[str] = []
+    for name, _meta in list(_index_entries_for_project(root, project_id)):
+        _remove_indexed_jar(root, name)
+        removed.append(name)
+    return removed
+
+
+def dedupe_mods_by_project(server_dir: str | Path) -> dict[str, Any]:
+    """Keep one jar per project_id; drop older / duplicate filenames.
+
+    Preference: entry with highest ``version_number`` string (best-effort), else
+    the last indexed entry. Orphan jars without an index entry are left alone.
+    """
+    root = Path(server_dir).resolve()
+    index = load_index(root)
+    entries = index.get("entries") if isinstance(index.get("entries"), dict) else {}
+    by_project: dict[str, list[tuple[str, dict[str, Any]]]] = {}
+    for name, meta in list(entries.items()):
+        if not isinstance(meta, dict):
+            continue
+        pid = str(meta.get("project_id") or "").strip()
+        if not pid:
+            continue
+        by_project.setdefault(pid, []).append((name, meta))
+
+    removed: list[dict[str, Any]] = []
+    kept: list[dict[str, Any]] = []
+    for pid, rows in by_project.items():
+        if len(rows) < 2:
+            if rows:
+                kept.append({"project_id": pid, "filename": rows[0][0]})
+            continue
+        # Prefer non-disabled, then highest version_number lexicographically.
+        def _rank(item: tuple[str, dict[str, Any]]) -> tuple[int, str]:
+            name, meta = item
+            disabled = 1 if name.endswith(".disabled") or meta.get("disabled") else 0
+            ver = str(meta.get("version_number") or meta.get("version_id") or "")
+            return (disabled, ver)
+
+        rows_sorted = sorted(rows, key=_rank)
+        winner_name, winner_meta = rows_sorted[-1]
+        for name, meta in rows_sorted[:-1]:
+            _remove_indexed_jar(root, name)
+            removed.append(
+                {
+                    "project_id": pid,
+                    "filename": name,
+                    "version_id": meta.get("version_id"),
+                    "kept": winner_name,
+                }
+            )
+        kept.append(
+            {
+                "project_id": pid,
+                "filename": winner_name,
+                "version_id": winner_meta.get("version_id"),
+            }
+        )
+    return {"ok": True, "removed": removed, "kept": kept, "removed_count": len(removed)}
 
 
 async def _pick_compatible_version(
@@ -381,15 +464,6 @@ async def download_and_install(
             "project_id": pid,
             "slug": slug,
         }
-    if pid in visited:
-        return {
-            "ok": True,
-            "skipped": True,
-            "reason": "cycle",
-            "project_id": pid,
-            "slug": slug,
-        }
-    visited.add(pid)
 
     server_side = str(project.get("server_side") or "").lower()
     if server_side == "unsupported" and not allow_client:
@@ -412,6 +486,28 @@ async def download_and_install(
     if chosen is None:
         raise LookupError(f"no Modrinth versions for {slug} ({loader}/{game_version})")
 
+    chosen_vid = str(chosen.get("id") or "")
+
+    # Already installing / installed this exact project+version in this walk.
+    visit_key = f"{pid}@{chosen_vid}" if chosen_vid else pid
+    if visit_key in visited or (pid in visited and not version_id):
+        existing_skip = _index_entry_for_project(root, pid)
+        if existing_skip:
+            old_name, old_meta = existing_skip
+            if str(old_meta.get("version_id") or "") == chosen_vid:
+                return {
+                    "ok": True,
+                    "skipped": True,
+                    "reason": "cycle",
+                    "project_id": pid,
+                    "slug": slug,
+                    "filename": old_name,
+                    "version_id": chosen_vid,
+                }
+        # Different version requested while pid already visited → still upgrade below.
+    visited.add(pid)
+    visited.add(visit_key)
+
     compat_loader = loader_candidates(loader)[0]
     compat = compatibility_report(
         project=project, version=chosen, loader=compat_loader, game_version=game_version
@@ -428,12 +524,19 @@ async def download_and_install(
                 "error": "; ".join(compat["issues"]),
             }
 
-    existing = _index_entry_for_project(root, pid)
-    if existing:
-        old_name, old_meta = existing
-        dest_existing = root / str(old_meta.get("path") or f"mods/{old_name}")
-        same_version = str(old_meta.get("version_id") or "") == str(chosen.get("id") or "")
-        if same_version and dest_existing.is_file():
+    existing_rows = _index_entries_for_project(root, pid)
+    if existing_rows:
+        same = [
+            (n, m)
+            for n, m in existing_rows
+            if str(m.get("version_id") or "") == chosen_vid
+        ]
+        if same and (root / str(same[0][1].get("path") or f"mods/{same[0][0]}")).is_file():
+            old_name, old_meta = same[0]
+            # Drop any extra duplicate copies of other filenames
+            for n, _m in existing_rows:
+                if n != old_name:
+                    _remove_indexed_jar(root, n)
             dep_results: list[dict[str, Any]] = []
             if install_deps:
                 dep_results = await _install_required_deps(
@@ -454,8 +557,8 @@ async def download_and_install(
                 "version_id": old_meta.get("version_id"),
                 "dependencies_installed": dep_results,
             }
-        # Outdated library (e.g. GeckoLib 4.4.x when a mod needs 4.8+) — replace.
-        _remove_indexed_jar(root, old_name)
+        # Replace every indexed copy of this project before installing the new one.
+        _remove_all_project_jars(root, pid)
 
     primary = _pick_primary_file(chosen)
     if not primary or not primary.get("url"):
@@ -710,12 +813,14 @@ async def resolve_installed_mod_dependencies(
     ]
     skipped = [r for r in installed if r.get("skipped")]
     failed = [r for r in installed if r.get("ok") is False]
+    dedupe = dedupe_mods_by_project(root)
     report_progress(
         {
             "type": "deps_done",
             "added": len(added),
             "failed": len(failed),
             "disabled": len(disabled),
+            "deduped": dedupe.get("removed_count", 0),
         }
     )
     return {
@@ -730,4 +835,5 @@ async def resolve_installed_mod_dependencies(
         "errors": errors,
         "added_count": len(added),
         "disabled_count": len(disabled),
+        "dedupe": dedupe,
     }

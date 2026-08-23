@@ -157,14 +157,15 @@ agent routes with `cf-agent cloud-manifest` (`GET api…/manifest.json`).
 
 ## Release binaries (Windows / macOS / Linux)
 
-Version **0.2.0**. Ship a onefile CLI via **Nuitka**; artifacts land on **GitHub Releases**. `latest.json` carries `version` / `hash` / `filelink` per platform:
+Version **0.2.1**. Ship a onefile CLI via **Nuitka**; artifacts land on **GitHub Releases**. `latest.json` carries `version` / `hash` / `filelink` per platform:
 
 ```json
 {
-  "version": "0.2.0",
+  "version": "0.2.1",
   "hash": "sha256:…",
-  "filelink": "https://github.com/cultforge/cultagent/releases/download/v0.2.0/cf-agent-0.2.0-windows-amd64.exe",
+  "filelink": "https://github.com/cultforge/cultagent/releases/download/v0.2.1/cf-agent-0.2.1-windows-amd64.exe",
   "platforms": { "windows-amd64": { "version": "…", "hash": "…", "filelink": "…" } }
+}
 ```
 
 ### Local build (this OS)
@@ -172,14 +173,14 @@ Version **0.2.0**. Ship a onefile CLI via **Nuitka**; artifacts land on **GitHub
 ```powershell
 pip install -e ".[release]"
 python scripts/build_release.py
-# → dist/cf-agent-0.2.0-<platform>.*
+# → dist/cf-agent-0.2.1-<platform>.*
 # → dist/latest.json
 ```
 
 Point `filelink` at a GitHub Release tag:
 
 ```powershell
-$env:CULTAGENT_RELEASE_BASE_URL = "https://github.com/cultforge/cultagent/releases/download/v0.2.0"
+$env:CULTAGENT_RELEASE_BASE_URL = "https://github.com/cultforge/cultagent/releases/download/v0.2.1"
 python scripts/build_release.py
 ```
 

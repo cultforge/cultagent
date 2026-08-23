@@ -163,9 +163,8 @@ Version **0.2.0**. Ship a onefile CLI via **Nuitka**; artifacts land on **GitHub
 {
   "version": "0.2.0",
   "hash": "sha256:…",
-  "filelink": "https://github.com/<org>/<repo>/releases/download/v0.2.0/cf-agent-0.2.0-windows-amd64.exe",
+  "filelink": "https://github.com/cultforge/cultagent/releases/download/v0.2.0/cf-agent-0.2.0-windows-amd64.exe",
   "platforms": { "windows-amd64": { "version": "…", "hash": "…", "filelink": "…" } }
-}
 ```
 
 ### Local build (this OS)
@@ -180,7 +179,7 @@ python scripts/build_release.py
 Point `filelink` at a GitHub Release tag:
 
 ```powershell
-$env:CULTAGENT_RELEASE_BASE_URL = "https://github.com/<org>/<repo>/releases/download/v0.2.0"
+$env:CULTAGENT_RELEASE_BASE_URL = "https://github.com/cultforge/cultagent/releases/download/v0.2.0"
 python scripts/build_release.py
 ```
 

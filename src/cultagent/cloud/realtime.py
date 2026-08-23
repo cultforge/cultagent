@@ -105,8 +105,11 @@ class CloudRealtime:
             return
         url = api_base_to_ws_url(self.app.config.cloud.api_base, path)
         try:
-            import websockets
             import inspect
+
+            import websockets  # noqa: F401 — ensure package is importable when frozen
+            import websockets.asyncio  # noqa: F401 — Nuitka must include asyncio backend
+            import websockets.asyncio.client  # noqa: F401
 
             kwargs: dict[str, Any] = {
                 "open_timeout": 20,

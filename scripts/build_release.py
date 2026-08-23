@@ -92,6 +92,8 @@ def _run_nuitka() -> Path:
         "--include-package-data=cultagent",
         # yaspin.spinners loads data/spinners.json via pkgutil.get_data
         "--include-package-data=yaspin",
+        # websockets 12+ lazy-loads websockets.asyncio (cloud realtime)
+        "--include-package=websockets",
         "--include-module=uvicorn.logging",
         "--include-module=uvicorn.loops",
         "--include-module=uvicorn.loops.auto",

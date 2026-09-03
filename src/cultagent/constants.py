@@ -103,6 +103,8 @@ COMMANDS = (
     "sidecar.revoke",
     "node.doctor",
     "node.update.check",
+    "node.update.apply",
+    "server.refresh",
 )
 
 VISIBILITY_LEVELS = (

@@ -409,7 +409,11 @@ def register_cmd(
                         identity, user_jwt=jwt, guild_id=guild_id
                     )
         except Exception as exc:  # noqa: BLE001
-            rprint(f"[red]Registration failed:[/red] {exc}")
+            detail = str(exc)
+            cause = exc.__cause__ or exc.__context__
+            if cause is not None and str(cause) and str(cause) != detail:
+                detail = f"{detail} — {cause}"
+            rprint(f"[red]Registration failed:[/red] {detail}")
             raise typer.Exit(code=1) from exc
 
         rprint("[green]Registered with CultForge[/green]")

@@ -38,22 +38,30 @@ def _run_blocking(fn: Callable[[], T]) -> T:
 
 @contextmanager
 def spinner(text: str = "Working…"):
-    """Yaspin on a real TTY; silent no-op when piped/non-TTY (avoids Windows encode errors)."""
+    """Yaspin on a real TTY; silent no-op when piped/non-TTY (avoids Windows encode errors).
+
+    Setup failures (missing yaspin data in frozen builds) fall back to Rich.
+    Body exceptions must never be caught here — that caused
+    ``generator didn't stop after throw()`` and masked real API errors.
+    """
     if not sys.stdout.isatty():
         yield None
         return
 
+    yaspin_cm = None
     try:
         from yaspin import yaspin
         from yaspin.spinners import Spinners
 
-        # Avoid color/attrs on Windows consoles that warn; Spinners.line is ASCII-safe.
         # Spinners loads package data (spinners.json) — missing in some frozen builds.
-        with yaspin(Spinners.line, text=text) as sp:
-            yield sp
-            return
+        yaspin_cm = yaspin(Spinners.line, text=text)
     except Exception:  # noqa: BLE001 — ImportError, FileNotFoundError, frozen-data gaps
-        pass
+        yaspin_cm = None
+
+    if yaspin_cm is not None:
+        with yaspin_cm as sp:
+            yield sp
+        return
 
     with console.status(f"[cyan]{text}[/cyan]", spinner="dots"):
         yield None

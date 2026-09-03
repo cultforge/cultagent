@@ -447,35 +447,71 @@ class ControlPlane:
                 continue
             report = by_wl.get(str(workload_id), {})
             binding = self.app.bindings.binding_for_workload(str(workload_id))
-            guild_server_id = (
-                item.get("guild_server_id")
-                or item.get("server_id")
-                or report.get("guild_server_id")
-                or (binding.get("guild_server_id") if binding else None)
-            )
-            personal_server_id = (
-                item.get("personal_server_id")
-                or (binding.get("personal_server_id") if binding else None)
-            )
-            cloud_server_id = (
-                str(personal_server_id)
-                if personal_server_id
-                else (str(guild_server_id) if guild_server_id else None)
-            )
-            scope = str(binding.get("scope") or mode) if binding else mode
-
-            if cloud_server_id and binding is None and not guild_server_id and not personal_server_id:
-                logger.debug("skip runtime/tunnel — no server id on workload %s", workload_id)
-                continue
-            if binding is None and self.app.bindings.active_bindings():
+            # Never push tunnel/runtime for workloads not bound to THIS agent.
+            # Previous loophole: when active_bindings() was empty we still wrote
+            # this PC's playit join onto any guild_server_id in desired_workloads,
+            # which let a friend's agent overwrite another member's guild server.
+            if binding is None:
                 logger.debug(
                     "skip runtime/tunnel for workload %s — not bound on this agent",
                     workload_id,
                 )
                 continue
 
+            guild_server_id = (
+                binding.get("guild_server_id")
+                or item.get("guild_server_id")
+                or item.get("server_id")
+            )
+            personal_server_id = binding.get("personal_server_id") or item.get(
+                "personal_server_id"
+            )
+            # Prefer binding ids — ignore foreign ids on the workload row.
+            bound_guild = str(binding.get("guild_server_id") or "").strip() or None
+            bound_personal = str(binding.get("personal_server_id") or "").strip() or None
+            if bound_guild:
+                guild_server_id = bound_guild
+            if bound_personal:
+                personal_server_id = bound_personal
+
+            cloud_server_id = (
+                str(personal_server_id)
+                if personal_server_id
+                else (str(guild_server_id) if guild_server_id else None)
+            )
+            scope = str(binding.get("scope") or mode)
+
+            if not cloud_server_id:
+                logger.debug(
+                    "skip runtime/tunnel — binding %s has no cloud server id",
+                    workload_id,
+                )
+                continue
+
             reported_state = str(report.get("reported_state") or "unknown")
-            local_id = report.get("local_server_id") or item.get("local_server_id")
+            local_id = (
+                report.get("local_server_id")
+                or item.get("local_server_id")
+                or binding.get("local_server_id")
+                or binding.get("resource_id")
+            )
+            # Only publish a public join address when this agent is actually
+            # hosting the bound local process (or clearing tunnel on stop).
+            hosting = False
+            if local_id:
+                try:
+                    hosting = self.app.servers.is_process_running(str(local_id))
+                except Exception:  # noqa: BLE001
+                    hosting = False
+            publish_tunnel = bool(tunnel_host) and hosting
+            clear_tunnel = bool(
+                (not hosting)
+                and (
+                    reported_state in {"stopped", "missing", "offline"}
+                    or item.get("network_mode") == "direct"
+                )
+            )
+
             mc_version = None
             player_count: int | None = None
             if local_id:
@@ -502,16 +538,14 @@ class ControlPlane:
                         reported_state=reported_state,
                         minecraft_version=mc_version,
                         player_count=player_count,
-                        tunnel_address=tunnel_host,
-                        tunnel_port=tunnel_port,
-                        network_mode="playit" if tunnel_host else "direct",
-                        clear_tunnel=bool(
-                            tunnel_host is None and item.get("network_mode") == "direct"
-                        ),
+                        tunnel_address=tunnel_host if publish_tunnel else None,
+                        tunnel_port=tunnel_port if publish_tunnel else None,
+                        network_mode="playit" if publish_tunnel else "direct",
+                        clear_tunnel=clear_tunnel and not publish_tunnel,
                     )
                 except CloudError as exc:
                     logger.debug("personal runtime upsert skipped: %s", exc)
-                if personal_server_id and tunnel_host:
+                if personal_server_id and publish_tunnel:
                     try:
                         await self.app.cloud_client.set_personal_server_tunnel(
                             token,
@@ -533,19 +567,17 @@ class ControlPlane:
                         workload_id=str(workload_id),
                         state=reported_state,
                         player_count=player_count,
-                        tunnel_address=tunnel_host,
-                        tunnel_port=tunnel_port,
-                        network_mode="playit" if tunnel_host else "direct",
-                        clear_tunnel=bool(
-                            tunnel_host is None and item.get("network_mode") == "direct"
-                        ),
+                        tunnel_address=tunnel_host if publish_tunnel else None,
+                        tunnel_port=tunnel_port if publish_tunnel else None,
+                        network_mode="playit" if publish_tunnel else "direct",
+                        clear_tunnel=clear_tunnel and not publish_tunnel,
                         guild_server_id=str(guild_server_id),
                         local_server_id=str(local_id) if local_id else None,
                     )
                 except CloudError as exc:
                     logger.debug("guild runtime upsert skipped: %s", exc)
 
-                if tunnel_host:
+                if publish_tunnel:
                     try:
                         await self.client.set_guild_server_tunnel(
                             token,

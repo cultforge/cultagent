@@ -27,6 +27,7 @@ class BindingCache:
     servers: list[dict[str, Any]] = field(default_factory=list)
     mode: str = "personal"
     refreshed_at: float | None = None
+    node_id: str | None = None
 
     def _unwrap_list(self, payload: dict[str, Any]) -> list[dict[str, Any]]:
         data = payload.get("data")
@@ -63,6 +64,20 @@ class BindingCache:
                     return self._unwrap_servers({"data": items})
         return []
 
+    def _binding_belongs_here(self, binding: dict[str, Any]) -> bool:
+        """Drop bindings clearly owned by another agent node (API mix-ups)."""
+        if not self.node_id:
+            return True
+        foreign = (
+            binding.get("node_id")
+            or binding.get("agent_id")
+            or binding.get("anode_id")
+            or binding.get("agent_node_id")
+        )
+        if not foreign:
+            return True
+        return str(foreign) == str(self.node_id)
+
     async def refresh(
         self,
         client: CultForgeClient,
@@ -73,11 +88,22 @@ class BindingCache:
         import time
 
         self.mode = agent_mode(identity)
+        if identity is not None:
+            self.node_id = identity.cloud_node_id or identity.node_id
         summary: dict[str, Any] = {"mode": self.mode, "bindings": 0, "servers": 0}
         try:
             bind_payload = await client.list_bindings(token)
-            self.bindings = self._unwrap_list(bind_payload)
+            raw = self._unwrap_list(bind_payload)
+            self.bindings = [b for b in raw if self._binding_belongs_here(b)]
+            dropped = len(raw) - len(self.bindings)
             summary["bindings"] = len(self.bindings)
+            if dropped:
+                summary["bindings_foreign_dropped"] = dropped
+                logger.warning(
+                    "Dropped %s binding(s) belonging to another node (kept %s)",
+                    dropped,
+                    len(self.bindings),
+                )
         except CloudError as exc:
             logger.debug("bindings refresh skipped: %s", exc)
             summary["bindings_error"] = str(exc)
@@ -95,6 +121,8 @@ class BindingCache:
         out: list[dict[str, Any]] = []
         for b in self.bindings:
             if b.get("revoked_at"):
+                continue
+            if not self._binding_belongs_here(b):
                 continue
             out.append(b)
         return out

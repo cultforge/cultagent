@@ -70,6 +70,51 @@ async def test_binding_cache_refresh_and_lookup() -> None:
 
 
 @pytest.mark.asyncio
+async def test_binding_cache_drops_foreign_node_bindings() -> None:
+    cache = BindingCache()
+
+    async def fake_bindings(token: str) -> dict[str, Any]:
+        return {
+            "data": [
+                {
+                    "id": "cagb_mine",
+                    "node_id": "anode_me",
+                    "scope": "guild",
+                    "guild_server_id": "srv_mine",
+                    "workload_id": "awlk_mine",
+                },
+                {
+                    "id": "cagb_friend",
+                    "node_id": "anode_friend",
+                    "scope": "guild",
+                    "guild_server_id": "srv_friend",
+                    "workload_id": "awlk_friend",
+                },
+            ]
+        }
+
+    async def fake_servers(token: str, *, limit: int = 100) -> dict[str, Any]:
+        return {"data": []}
+
+    client = CultForgeClient(CloudSection())
+    client.list_bindings = fake_bindings  # type: ignore[method-assign]
+    client.list_agent_servers = fake_servers  # type: ignore[method-assign]
+
+    identity = AgentIdentity(
+        node_id="anode_me",
+        cloud_node_id="anode_me",
+        guild_id="gld_x",
+        status=AgentStatus.ONLINE,
+    )
+    summary = await cache.refresh(client, "cagt_test", identity=identity)
+    assert summary["bindings"] == 1
+    assert summary.get("bindings_foreign_dropped") == 1
+    assert cache.is_bound("srv_mine")
+    assert not cache.is_bound("srv_friend")
+    assert cache.binding_for_workload("awlk_friend") is None
+
+
+@pytest.mark.asyncio
 async def test_builds_search_fallback_to_guild(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config = AgentConfig()
     config.agent.data_dir = str(tmp_path / "data")

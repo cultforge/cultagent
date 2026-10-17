@@ -71,9 +71,42 @@ class BuildService:
         files = [f for f in (manifest.get("files") or []) if isinstance(f, dict)]
         if not files:
             issues.append("manifest has no files")
-        unresolved = manifest.get("unresolved") or []
-        if unresolved:
-            issues.append(f"{len(unresolved)} unresolved entries")
+        unresolved_raw = manifest.get("unresolved") or []
+        unresolved_list = unresolved_raw if isinstance(unresolved_raw, list) else []
+        required_unresolved: list[str] = []
+        optional_unresolved = 0
+        for item in unresolved_list:
+            if isinstance(item, dict) and item.get("optional"):
+                optional_unresolved += 1
+                continue
+            if isinstance(item, dict):
+                label = (
+                    item.get("path")
+                    or item.get("slug")
+                    or item.get("project_id")
+                    or item.get("name")
+                    or item.get("reason")
+                    or "unknown"
+                )
+                reason = item.get("reason")
+                required_unresolved.append(
+                    f"{label}" + (f" ({reason})" if reason and reason != label else "")
+                )
+            else:
+                required_unresolved.append(str(item))
+        if required_unresolved:
+            preview = ", ".join(required_unresolved[:8])
+            more = (
+                f" (+{len(required_unresolved) - 8} more)"
+                if len(required_unresolved) > 8
+                else ""
+            )
+            issues.append(
+                f"{len(required_unresolved)} unresolved pinned mod(s) — "
+                f"fix version pins before install: {preview}{more}"
+            )
+        if optional_unresolved:
+            notes.append(f"{optional_unresolved} optional unresolved entr(ies) skipped")
 
         by_kind: dict[str, int] = {}
         optional_n = 0
@@ -86,13 +119,15 @@ class BuildService:
                 optional_n += 1
             if str(entry.get("env") or "").lower() == "client":
                 client_only += 1
-            if not entry.get("sha256"):
+            if not entry.get("sha256") and not entry.get("sha512"):
                 missing_hash += 1
             if not (entry.get("urls") or entry.get("url")):
                 issues.append(f"no download URL for {entry.get('path') or kind}")
 
         if missing_hash:
-            notes.append(f"{missing_hash} file(s) lack sha256 (install will not verify)")
+            notes.append(
+                f"{missing_hash} file(s) lack sha256/sha512 (install will not verify)"
+            )
         if client_only:
             notes.append(f"{client_only} client-only file(s) skipped on servers")
         if optional_n:
@@ -107,7 +142,8 @@ class BuildService:
                 "optional": optional_n,
                 "client_only": client_only,
                 "missing_sha256": missing_hash,
-                "unresolved": len(unresolved) if isinstance(unresolved, list) else 0,
+                "unresolved": len(required_unresolved),
+                "unresolved_optional": optional_unresolved,
                 "by_kind": by_kind,
             },
         }
@@ -119,10 +155,16 @@ class BuildService:
         *,
         include_optional: bool = False,
         cache_dir: Path | None = None,
-        resolve_deps: bool = True,
+        resolve_deps: bool = False,
         loader: str | None = None,
         game_version: str | None = None,
     ) -> dict[str, Any]:
+        """Install pinned ``files[]`` from a cloud build manifest.
+
+        Default ``resolve_deps=False``: download manifest URLs/hashes as-is.
+        Do not re-resolve Modrinth "latest" by slug when the launcher pinned
+        versions. Pass ``resolve_deps=True`` only for ad-hoc repair flows.
+        """
         check = await self.validate_cloud_manifest(manifest)
         if not check["ok"]:
             return {
@@ -130,6 +172,7 @@ class BuildService:
                 "compatibility": check,
                 "installed": [],
                 "errors": check["issues"],
+                "unresolved": manifest.get("unresolved") or [],
             }
         result = await install_manifest(
             manifest,

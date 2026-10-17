@@ -170,3 +170,56 @@ class BindingCache:
             return str(val) if val else None
         val = binding.get("guild_server_id")
         return str(val) if val else None
+
+    @staticmethod
+    def is_primary_binding(binding: dict[str, Any]) -> bool:
+        """True when this binding is the primary host for the cloud server.
+
+        API marks ``is_primary`` (or legacy ``primary``). If the field is absent,
+        treat as primary so older API responses keep working until all nodes
+        advertise the flag.
+        """
+        if "is_primary" in binding:
+            return bool(binding.get("is_primary"))
+        if "primary" in binding:
+            return bool(binding.get("primary"))
+        return True
+
+    @staticmethod
+    def is_stats_eligible(binding: dict[str, Any]) -> bool:
+        """Competitive ingest gate from binding / nested server row.
+
+        Missing ``stats_eligible`` defaults to True for primary guild bindings
+        (API still enforces verified-guild). Explicit False blocks agent emit.
+        """
+        if "stats_eligible" in binding:
+            return bool(binding.get("stats_eligible"))
+        server = binding.get("server")
+        if isinstance(server, dict) and "stats_eligible" in server:
+            return bool(server.get("stats_eligible"))
+        return True
+
+    def primary_bindings(self) -> list[dict[str, Any]]:
+        return [b for b in self.active_bindings() if self.is_primary_binding(b)]
+
+    def stats_eligible_bindings(self) -> list[dict[str, Any]]:
+        """Primary guild bindings that may feed competitive score batches."""
+        out: list[dict[str, Any]] = []
+        for b in self.primary_bindings():
+            if str(b.get("scope") or self.mode) == "personal":
+                continue
+            if not self.is_stats_eligible(b):
+                continue
+            out.append(b)
+        return out
+
+    def primary_binding_for_server(self, server_id: str) -> dict[str, Any] | None:
+        sid = str(server_id)
+        for b in self.primary_bindings():
+            if str(b.get("guild_server_id") or "") == sid:
+                return b
+            if str(b.get("personal_server_id") or "") == sid:
+                return b
+            if str(b.get("server_id") or "") == sid:
+                return b
+        return None

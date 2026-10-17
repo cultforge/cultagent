@@ -1,5 +1,7 @@
 name: Release cf-agent binaries
 
+# RELEASE BRAKES (ranking 0.2.4 WIP): no auto publish on v* tags.
+# Produce binaries / GitHub Release only via workflow_dispatch until 0.2.4 ships.
 on:
   workflow_dispatch:
     inputs:
@@ -7,9 +9,10 @@ on:
         description: "Also build Intel Mac on scarce macos-13 (often queues forever)"
         type: boolean
         default: false
-  push:
-    tags:
-      - "v*"
+      publish_release:
+        description: "Create/update GitHub Release from this run (off by default while brakes are on)"
+        type: boolean
+        default: false
   pull_request:
     paths:
       - "src/**"
@@ -226,10 +229,24 @@ jobs:
           name: cf-agent-release-bundle
           path: release-out/*
 
-      - name: GitHub Release (tags only)
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Resolve release tag from latest.json
+        id: rel
+        if: >
+          github.event_name == 'workflow_dispatch'
+          && github.event.inputs.publish_release == 'true'
+        run: |
+          VER=$(python -c "import json; print(json.load(open('release-out/latest.json'))['version'])")
+          echo "tag=v${VER}" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag v${VER}"
+
+      - name: GitHub Release (manual publish only)
+        # Brakes: never auto-publish from tags; require workflow_dispatch + publish_release.
+        if: >
+          github.event_name == 'workflow_dispatch'
+          && github.event.inputs.publish_release == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.rel.outputs.tag }}
           files: release-out/*
           generate_release_notes: true
           fail_on_unmatched_files: true

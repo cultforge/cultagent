@@ -3,6 +3,8 @@
 > **Ship reference** — how the three layers talk. Paste into launcher or API agents when wiring remote control.
 >
 > **Detailed contracts:** [`LAUNCHER_AGENT_CONTRACT.md`](LAUNCHER_AGENT_CONTRACT.md) (exact payloads), [`API_REMOTE_CONTROL_PROMPT.md`](API_REMOTE_CONTROL_PROMPT.md) (API ticket), [`LAUNCHER_UI_CONTEXT.md`](LAUNCHER_UI_CONTEXT.md) (launcher screens).
+>
+> **Ranking / competitive scores (0.2.4 track):** [`AGENT_RANKING_0.2.4.md`](AGENT_RANKING_0.2.4.md) — **cf-agent → API only**; launcher is UI. Verified guild + primary binding gate.
 
 ---
 
@@ -58,6 +60,7 @@ After registration the control plane starts automatically.
 | `POST /v1/agent/commands/{id}/result` | Report success/failure + result payload |
 | `POST /v1/agent/telemetry` | Host + Minecraft metrics |
 | `POST /v1/agent/workloads/report` | Workload state sync |
+| `POST /v1/agent/score/batch` | Competitive raw deltas (verified guild + primary; see [`AGENT_RANKING_0.2.4.md`](AGENT_RANKING_0.2.4.md)) |
 
 Guild scope (`node.guild_id` set): tunnel/runtime via `/v1/agent/guild/…`  
 Personal scope (`guild_id` null): `/v1/agent/personal/servers/{upsrv}/tunnel|runtime`

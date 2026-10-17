@@ -186,6 +186,20 @@ class GuildOrchestrator:
             ),
         }
 
+    def _require_primary_for_tunnel(self, server_id: str) -> dict[str, Any] | None:
+        """Return binding if this node is primary; skip (no API call) otherwise."""
+        binding = self.app.bindings.binding_for_server(server_id)
+        if binding is None:
+            # No binding cache hit — let API decide (legacy / first sync)
+            return None
+        if not self.app.bindings.is_primary_binding(binding):
+            raise CloudError(
+                "skip tunnel: this agent is not the primary binding for "
+                f"{server_id} (avoids 403 standby spam)",
+                status_code=403,
+            )
+        return binding
+
     async def report_tunnel(
         self,
         server_id: str,
@@ -198,9 +212,23 @@ class GuildOrchestrator:
         tunnel_meta: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """POST tunnel override — body uses tunnel_address / tunnel_port (not endpoint URL)."""
+        try:
+            binding = self._require_primary_for_tunnel(server_id)
+        except CloudError as exc:
+            if exc.status_code == 403 and "not the primary" in str(exc):
+                logger.info("%s", exc)
+                return {
+                    "ok": True,
+                    "skipped": True,
+                    "reason": "not_primary",
+                    "server_id": server_id,
+                }
+            raise
         address = tunnel_address
         port = tunnel_port
         mode = network_mode
+        if binding and not workload_id:
+            workload_id = binding.get("workload_id")
 
         if clear_tunnel:
             payload = await self.app.cloud_client.set_guild_server_tunnel(

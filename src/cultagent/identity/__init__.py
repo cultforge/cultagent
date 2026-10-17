@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import secrets
 import string
 from datetime import datetime, timezone
@@ -10,9 +11,50 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from cultagent.constants import NODE_ID_PREFIX
+
+logger = logging.getLogger("cultagent.identity")
+
+
+def _read_json_object(path: Path) -> dict[str, Any] | None:
+    """Load a JSON object from disk; treat empty/corrupt files as missing.
+
+    Empty or truncated identity/credentials files are common after a killed
+    write or a bad copy onto a host — never crash the CLI on decode.
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        logger.warning("Could not read %s: %s", path, exc)
+        return None
+    if not text.strip():
+        logger.warning("Empty identity/credentials file at %s — ignoring", path)
+        _quarantine_corrupt(path, reason="empty")
+        return None
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError as exc:
+        logger.warning("Corrupt JSON in %s (%s) — ignoring", path, exc)
+        _quarantine_corrupt(path, reason="json")
+        return None
+    if not isinstance(data, dict):
+        logger.warning("Unexpected JSON root in %s — ignoring", path)
+        _quarantine_corrupt(path, reason="shape")
+        return None
+    return data
+
+
+def _quarantine_corrupt(path: Path, *, reason: str) -> None:
+    """Rename a bad file aside so the next ensure_* can recreate a clean one."""
+    try:
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        dest = path.with_name(f"{path.name}.corrupt-{reason}-{stamp}")
+        path.replace(dest)
+        logger.warning("Quarantined %s → %s", path.name, dest.name)
+    except OSError as exc:
+        logger.debug("Could not quarantine %s: %s", path, exc)
 
 
 def utc_now() -> datetime:
@@ -93,33 +135,48 @@ class IdentityStore:
     def load_identity(self) -> AgentIdentity | None:
         if not self.identity_path.is_file():
             return None
-        data = json.loads(self.identity_path.read_text(encoding="utf-8"))
-        return AgentIdentity.model_validate(data)
+        data = _read_json_object(self.identity_path)
+        if data is None:
+            return None
+        try:
+            return AgentIdentity.model_validate(data)
+        except ValidationError as exc:
+            logger.warning("Invalid identity schema in %s: %s", self.identity_path, exc)
+            _quarantine_corrupt(self.identity_path, reason="schema")
+            return None
 
     def save_identity(self, identity: AgentIdentity) -> None:
         identity.touch()
         self.identity_path.parent.mkdir(parents=True, exist_ok=True)
-        self.identity_path.write_text(
-            identity.model_dump_json(indent=2),
-            encoding="utf-8",
-        )
+        # Atomic-ish write: temp then replace, avoids empty files on kill mid-write.
+        tmp = self.identity_path.with_suffix(self.identity_path.suffix + ".tmp")
+        tmp.write_text(identity.model_dump_json(indent=2) + "\n", encoding="utf-8")
+        tmp.replace(self.identity_path)
 
     def load_credentials(self) -> AgentCredentials:
         if not self.credentials_path.is_file():
             return AgentCredentials()
-        data = json.loads(self.credentials_path.read_text(encoding="utf-8"))
-        creds = AgentCredentials.model_validate(data)
+        data = _read_json_object(self.credentials_path)
+        if data is None:
+            return AgentCredentials()
+        try:
+            creds = AgentCredentials.model_validate(data)
+        except ValidationError as exc:
+            logger.warning(
+                "Invalid credentials schema in %s: %s", self.credentials_path, exc
+            )
+            _quarantine_corrupt(self.credentials_path, reason="schema")
+            return AgentCredentials()
         if creds.agent_secret and not creds.agent_token:
             creds.agent_token = creds.agent_secret
         return creds
 
     def save_credentials(self, credentials: AgentCredentials) -> None:
         self.credentials_path.parent.mkdir(parents=True, exist_ok=True)
-        # Restrictive permissions where the OS supports it.
-        self.credentials_path.write_text(
-            credentials.model_dump_json(indent=2),
-            encoding="utf-8",
-        )
+        # Atomic-ish write + restrictive permissions where the OS supports it.
+        tmp = self.credentials_path.with_suffix(self.credentials_path.suffix + ".tmp")
+        tmp.write_text(credentials.model_dump_json(indent=2) + "\n", encoding="utf-8")
+        tmp.replace(self.credentials_path)
         try:
             self.credentials_path.chmod(0o600)
         except OSError:

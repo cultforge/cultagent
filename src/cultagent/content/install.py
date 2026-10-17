@@ -138,6 +138,14 @@ def _sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
+def _sha512_file(path: Path) -> str:
+    h = hashlib.sha512()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1024 * 64), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
 def _copy_from_cache(cache_path: Path, dest: Path) -> dict[str, Any]:
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(cache_path, dest)
@@ -151,12 +159,26 @@ def _copy_from_cache(cache_path: Path, dest: Path) -> dict[str, Any]:
     }
 
 
+def _file_matches_hashes(
+    path: Path,
+    *,
+    expected_sha256: str | None = None,
+    expected_sha512: str | None = None,
+) -> bool:
+    if expected_sha256:
+        return _sha256_file(path).lower() == str(expected_sha256).lower()
+    if expected_sha512:
+        return _sha512_file(path).lower() == str(expected_sha512).lower()
+    return False
+
+
 async def _download(
     client: httpx.AsyncClient,
     urls: list[str],
     dest: Path,
     *,
     expected_sha256: str | None = None,
+    expected_sha512: str | None = None,
     expected_size: int | None = None,
     label: str = "",
     cache_dir: Path | None = None,
@@ -187,7 +209,8 @@ async def _download(
             dest.parent.mkdir(parents=True, exist_ok=True)
             async with client.stream("GET", url) as response:
                 response.raise_for_status()
-                hasher = hashlib.sha256()
+                hasher256 = hashlib.sha256()
+                hasher512 = hashlib.sha512() if expected_sha512 else None
                 total = 0
                 header_len = response.headers.get("content-length")
                 known_total: int | None = None
@@ -206,7 +229,9 @@ async def _download(
                 with dest.open("wb") as fh:
                     async for chunk in response.aiter_bytes():
                         total += len(chunk)
-                        hasher.update(chunk)
+                        hasher256.update(chunk)
+                        if hasher512 is not None:
+                            hasher512.update(chunk)
                         fh.write(chunk)
                         report_progress(
                             {
@@ -216,11 +241,17 @@ async def _download(
                                 "total": known_total,
                             }
                         )
-            digest = hasher.hexdigest()
+            digest = hasher256.hexdigest()
+            digest512 = hasher512.hexdigest() if hasher512 is not None else None
             if expected_sha256 and digest.lower() != expected_sha256.lower():
                 dest.unlink(missing_ok=True)
                 raise RuntimeError(
                     f"sha256 mismatch for {dest.name}: expected {expected_sha256}, got {digest}"
+                )
+            if expected_sha512 and digest512 and digest512.lower() != expected_sha512.lower():
+                dest.unlink(missing_ok=True)
+                raise RuntimeError(
+                    f"sha512 mismatch for {dest.name}: expected {expected_sha512}, got {digest512}"
                 )
             if expected_size is not None and total != expected_size:
                 logger.warning(
@@ -246,13 +277,16 @@ async def _download(
                     "sha256": digest,
                 }
             )
-            return {
+            out: dict[str, Any] = {
                 "path": str(dest),
                 "url": url,
                 "sha256": digest,
                 "size": total,
                 "cached": False,
             }
+            if digest512:
+                out["sha512"] = digest512
+            return out
         except Exception as exc:  # noqa: BLE001
             last_error = exc
             logger.warning("download failed %s: %s", url, exc)
@@ -329,13 +363,47 @@ async def install_manifest(
     files = list(manifest.get("files") or [])
     excludes = list(manifest.get("excludes") or [])
     warnings = list(manifest.get("warnings") or [])
-    unresolved = list(manifest.get("unresolved") or [])
+    unresolved_raw = list(manifest.get("unresolved") or [])
+    required_unresolved = [
+        u
+        for u in unresolved_raw
+        if not (isinstance(u, dict) and u.get("optional"))
+    ]
+    unresolved = unresolved_raw
 
     # Ensure world datapacks folder exists and migrate any root-level leftovers.
     migrated = migrate_root_datapacks(server_root)
     if migrated:
         warnings.append(f"migrated {len(migrated)} datapack(s) into world folder")
     datapack_dir(server_root).mkdir(parents=True, exist_ok=True)
+
+    if required_unresolved:
+        labels = []
+        for item in required_unresolved[:12]:
+            if isinstance(item, dict):
+                labels.append(
+                    str(
+                        item.get("path")
+                        or item.get("slug")
+                        or item.get("project_id")
+                        or item.get("name")
+                        or item
+                    )
+                )
+            else:
+                labels.append(str(item))
+        return {
+            "ok": False,
+            "mode": mode,
+            "installed": [],
+            "skipped": [],
+            "errors": [
+                "manifest has unresolved pinned mods — fix version pins before install: "
+                + ", ".join(labels)
+            ],
+            "warnings": warnings,
+            "unresolved": unresolved,
+        }
 
     if mode == "pending" or not files:
         return {
@@ -405,9 +473,31 @@ async def install_manifest(
 
             dest = _safe_join(server_root, rel)
             try:
-                if dest.is_file() and entry.get("sha256"):
-                    if _sha256_file(dest).lower() == str(entry["sha256"]).lower():
+                if dest.is_file() and (
+                    entry.get("sha256") or entry.get("sha512")
+                ):
+                    report_progress(
+                        {
+                            "type": "file_hash_start",
+                            "path": rel,
+                            "index": index,
+                            "algo": "sha256" if entry.get("sha256") else "sha512",
+                        }
+                    )
+                    if _file_matches_hashes(
+                        dest,
+                        expected_sha256=entry.get("sha256"),
+                        expected_sha512=entry.get("sha512"),
+                    ):
                         skipped.append({"path": rel, "reason": "already_present"})
+                        report_progress(
+                            {
+                                "type": "file_hash_ok",
+                                "path": rel,
+                                "index": index,
+                                "reason": "already_present",
+                            }
+                        )
                         report_progress(
                             {
                                 "type": "file_skip",
@@ -431,10 +521,20 @@ async def install_manifest(
                     urls,
                     dest,
                     expected_sha256=entry.get("sha256"),
+                    expected_sha512=entry.get("sha512"),
                     expected_size=entry.get("size"),
                     label=rel,
                     cache_dir=cache_dir,
                 )
+                if entry.get("sha256") or entry.get("sha512"):
+                    report_progress(
+                        {
+                            "type": "file_hash_ok",
+                            "path": rel,
+                            "index": index,
+                            "reason": "downloaded",
+                        }
+                    )
                 installed.append({"path": rel, **result})
             except Exception as exc:  # noqa: BLE001
                 msg = f"{rel}: {exc}"

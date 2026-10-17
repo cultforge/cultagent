@@ -903,7 +903,7 @@ def server_refresh_cmd(
         agent = create_app(str(config) if config else None)
         agent.bootstrap_identity()
         sid = await _pick_server_id(agent, server_id)
-        with spinner(f"Refreshing content for {sid}…"):
+        with install_progress_ui(f"Refreshing {sid}"):
             result = await agent.dispatch(
                 "server.refresh",
                 resource_id=sid,
@@ -1473,7 +1473,7 @@ def mod_install_cmd(
         agent = create_app(str(config) if config else None)
         agent.bootstrap_identity()
         sid = await _pick_server_id(agent, server_id)
-        with spinner(f"Installing {slug}…"):
+        with install_progress_ui(f"Installing {slug}"):
             result = await agent.dispatch(
                 "server.mods.install",
                 resource_id=sid,

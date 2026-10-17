@@ -34,8 +34,10 @@ REQUIRED_AGENT_ROUTES = (
     "/v1/agent/guild/servers/{server_id}/tunnel",
     "/v1/agent/guild/runtime",
     "/v1/agent/guild/players",
+    "/v1/agent/guild/live",
     "/v1/agent/guild/events",
     "/v1/agent/guild/stats",
+    "/v1/agent/score/batch",
     "/v1/agent/commands/schema",
     "/v1/agent/bindings",
     "/v1/agent/servers",
@@ -44,6 +46,7 @@ REQUIRED_AGENT_ROUTES = (
     "/v1/agent/builds/{build_id}/provision",
     "/v1/agent/personal/servers/{server_id}/tunnel",
     "/v1/agent/personal/servers/{server_id}/runtime",
+    "/v1/agent/personal/servers/{server_id}/live",
     "/v1/guilds/{guild_id}/agents/{node_id}/attach",
 )
 
@@ -59,6 +62,8 @@ COMMANDS = (
     "server.restart",
     "server.console.read",
     "server.console.execute",
+    "server.player.kick",
+    "server.player.ban",
     "server.config.read",
     "server.config.update",
     "server.mods.list",

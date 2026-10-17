@@ -50,6 +50,15 @@ export type FlatMetrics = {
   disk_percent?: number | null;
 };
 
+export type LivePlayer = {
+  minecraft_name?: string;
+  name?: string;
+  minecraft_uuid?: string;
+  uuid?: string;
+  joined_at?: string;
+  session_stats?: Record<string, number>;
+};
+
 export type ServerDetail = {
   ok: boolean;
   server: ServerRecord;
@@ -57,6 +66,7 @@ export type ServerDetail = {
   join?: JoinInfo;
   uptime_label?: string;
   mod_count?: number;
+  players?: LivePlayer[];
 };
 
 export type NetworkStatus = {
@@ -440,6 +450,27 @@ export const cultApi = {
     api(`/v1/servers/${id}/files/content`, {
       method: "PUT",
       body: JSON.stringify({ path, content }),
+    }),
+  modConfigs: (id: string) =>
+    api<{ ok: boolean; files?: Array<{ path: string; name: string; suffix: string; size: number }> }>(
+      `/v1/servers/${id}/mod-configs`,
+    ),
+  modConfigGet: (id: string, path: string) =>
+    api<{
+      ok: boolean;
+      path?: string;
+      raw?: string;
+      fields?: Array<{ key: string; type: string; value: unknown; label: string }>;
+      parse_error?: string;
+    }>(`/v1/servers/${id}/mod-configs?path=${encodeURIComponent(path)}`),
+  modConfigPut: (
+    id: string,
+    path: string,
+    body: { raw?: string; values?: Record<string, unknown> },
+  ) =>
+    api(`/v1/servers/${id}/mod-configs`, {
+      method: "PUT",
+      body: JSON.stringify({ path, ...body }),
     }),
   configGet: (id: string) =>
     api<{

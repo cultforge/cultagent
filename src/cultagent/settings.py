@@ -30,6 +30,8 @@ class CloudSection(BaseModel):
     guilds_base: str = DEFAULT_GUILDS_BASE
     poll_interval_seconds: int = 15
     telemetry_interval_seconds: int = 15
+    # Aternos-style live share cadence (R.md §4); clamped 3–10s at runtime.
+    live_share_interval_seconds: int = 5
     # Prefer cloud WebSocket when api…/manifest.json advertises it; else HTTPS poll.
     realtime_enabled: bool = True
     control_plane_enabled: bool = True

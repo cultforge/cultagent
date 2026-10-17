@@ -195,6 +195,7 @@ class CultAgentApp:
             )
         elif self.config.cloud.control_plane_enabled:
             self._tasks.append(asyncio.create_task(self.realtime.run()))
+            self._tasks.append(asyncio.create_task(self._live_share_loop()))
 
         self._tasks.append(asyncio.create_task(self._run_local_api()))
         self._tasks.append(asyncio.create_task(self._crash_watch_loop()))
@@ -251,6 +252,19 @@ class CultAgentApp:
             except Exception:  # noqa: BLE001
                 logger.exception("Control plane tick failed")
             await asyncio.sleep(self.control_plane.poll_interval)
+
+    async def _live_share_loop(self) -> None:
+        """Post Aternos-style live snapshots on a 3–10s cadence (independent of poll)."""
+        from cultagent.cloud.live_share import clamp_live_interval
+
+        while self._running:
+            try:
+                await self.control_plane.flush_live_share()
+            except Exception:  # noqa: BLE001
+                logger.debug("live share loop error", exc_info=True)
+            await asyncio.sleep(
+                clamp_live_interval(self.config.cloud.live_share_interval_seconds)
+            )
 
     async def _try_resolve_from_crash(self, record: Any) -> None:
         """If latest.log / FML crash lists missing mods, install them before restart."""

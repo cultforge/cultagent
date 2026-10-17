@@ -785,6 +785,14 @@ def create_web_app(agent: CultAgentApp):
             mod_count = len(mods)
         except Exception:  # noqa: BLE001
             mod_count = 0
+        players: list[dict[str, Any]] = []
+        try:
+            from cultagent.cloud.presence import get_presence_tracker
+
+            snap = get_presence_tracker().snapshot(sid)
+            players = list(snap.get("players") or [])
+        except Exception:  # noqa: BLE001
+            players = []
         return JSONResponse(
             {
                 "ok": True,
@@ -793,6 +801,7 @@ def create_web_app(agent: CultAgentApp):
                 "join": join,
                 "uptime_label": _uptime_label(status.uptime_seconds),
                 "mod_count": mod_count,
+                "players": players,
             }
         )
 
@@ -1111,6 +1120,43 @@ def create_web_app(agent: CultAgentApp):
         except Exception as exc:  # noqa: BLE001
             return JSONResponse({"ok": False, "error": str(exc)}, status_code=400)
 
+    async def api_server_mod_configs(request: Request) -> JSONResponse:
+        """List or read/write mod config files under config/."""
+        from cultagent.content.mod_config import (
+            list_mod_config_files,
+            read_mod_config,
+            write_mod_config,
+        )
+
+        sid = request.path_params["server_id"]
+        record = await agent.servers.get(sid)
+        if record is None:
+            return JSONResponse({"ok": False, "error": "unknown server"}, status_code=404)
+        if request.method == "GET":
+            rel = request.query_params.get("path")
+            if rel:
+                try:
+                    return JSONResponse(read_mod_config(record.path, str(rel)))
+                except Exception as exc:  # noqa: BLE001
+                    return JSONResponse({"ok": False, "error": str(exc)}, status_code=400)
+            return JSONResponse(
+                {"ok": True, "files": list_mod_config_files(record.path)}
+            )
+        body = await request.json()
+        rel = str(body.get("path") or "")
+        if not rel:
+            return JSONResponse({"ok": False, "error": "path required"}, status_code=400)
+        try:
+            result = write_mod_config(
+                record.path,
+                rel,
+                raw=body.get("raw") if "raw" in body else None,
+                values=body.get("values") if isinstance(body.get("values"), dict) else None,
+            )
+            return JSONResponse(result)
+        except Exception as exc:  # noqa: BLE001
+            return JSONResponse({"ok": False, "error": str(exc)}, status_code=400)
+
     async def ws_server_console(websocket: WebSocket) -> None:
         """Live console stream for the local panel (HTTP poll remains as fallback)."""
         sid = websocket.path_params["server_id"]
@@ -1147,6 +1193,35 @@ def create_web_app(agent: CultAgentApp):
                 mtype = str(raw.get("type") or "").lower()
                 if mtype == "ping":
                     await websocket.send_json({"type": "pong"})
+                    continue
+                # Immediate control: start over WS (stop/restart stay HTTP with UI debounce)
+                if mtype == "control":
+                    action = str(raw.get("action") or "").lower()
+                    if action == "start":
+                        try:
+                            await agent.dispatch(
+                                "server.start",
+                                resource_id=sid,
+                                params={"accept_eula": bool(raw.get("accept_eula", True))},
+                            )
+                            st = await agent.servers.status(sid)
+                            await websocket.send_json(
+                                {
+                                    "type": "control_ack",
+                                    "action": "start",
+                                    "ok": True,
+                                    "state": getattr(st.state, "value", str(st.state)),
+                                }
+                            )
+                        except Exception as exc:  # noqa: BLE001
+                            await websocket.send_json(
+                                {
+                                    "type": "control_ack",
+                                    "action": "start",
+                                    "ok": False,
+                                    "error": str(exc),
+                                }
+                            )
                     continue
                 command = raw.get("command") or raw.get("line")
                 if command:
@@ -1253,6 +1328,11 @@ def create_web_app(agent: CultAgentApp):
         Route(
             "/v1/servers/{server_id}/files/content",
             api_server_file_content,
+            methods=["GET", "PUT"],
+        ),
+        Route(
+            "/v1/servers/{server_id}/mod-configs",
+            api_server_mod_configs,
             methods=["GET", "PUT"],
         ),
         Route("/v1/servers/{server_id}/{action}", api_server_action, methods=["POST"]),

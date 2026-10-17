@@ -5,6 +5,8 @@
 > **Exact command payloads:** [`docs/LAUNCHER_AGENT_CONTRACT.md`](../docs/LAUNCHER_AGENT_CONTRACT.md)
 >
 > **API ↔ agent matrix:** [`docs/INTEGRATION.md`](../docs/INTEGRATION.md) §3.6
+>
+> **Ranking / score contract (0.2.4 WIP on 0.2.3):** [`docs/AGENT_RANKING_0.2.4.md`](../docs/AGENT_RANKING_0.2.4.md) — competitive stats are **agent → API only** (launcher never posts score facts).
 
 CultAgent implements machine-side execution; the launcher implements user JWT flows via sidecar.
 

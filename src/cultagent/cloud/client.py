@@ -545,6 +545,137 @@ class CultForgeClient:
             json_body=build_stats_body(stats=stats),
         )
 
+    async def post_guild_live(
+        self,
+        agent_token: str,
+        *,
+        body: dict[str, Any] | None = None,
+        workload_id: str | None = None,
+        guild_server_id: str | None = None,
+        reported_state: str = "running",
+        minecraft_version: str | None = None,
+        player_count: int | None = None,
+        max_players: int | None = None,
+        tps: float | None = None,
+        mspt: float | None = None,
+        world: dict[str, Any] | None = None,
+        server_facet: dict[str, Any] | None = None,
+        players: list[dict[str, Any]] | None = None,
+        events: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        """POST /v1/agent/guild/live — Aternos-style live share (agent token only)."""
+        from cultagent.cloud.guild_payloads import build_live_body
+
+        payload = body if body is not None else build_live_body(
+            workload_id=str(workload_id or ""),
+            guild_server_id=guild_server_id,
+            reported_state=reported_state,
+            minecraft_version=minecraft_version,
+            player_count=player_count,
+            max_players=max_players,
+            tps=tps,
+            mspt=mspt,
+            world=world,
+            server_facet=server_facet,
+            players=players,
+            events=events,
+        )
+        return await self._request(
+            "POST",
+            "/v1/agent/guild/live",
+            agent_token=agent_token,
+            json_body=payload,
+        )
+
+    async def post_personal_live(
+        self,
+        agent_token: str,
+        server_id: str,
+        *,
+        body: dict[str, Any] | None = None,
+        workload_id: str | None = None,
+        reported_state: str = "running",
+        minecraft_version: str | None = None,
+        player_count: int | None = None,
+        max_players: int | None = None,
+        tps: float | None = None,
+        mspt: float | None = None,
+        world: dict[str, Any] | None = None,
+        server_facet: dict[str, Any] | None = None,
+        players: list[dict[str, Any]] | None = None,
+        events: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        """POST /v1/agent/personal/servers/{server_id}/live."""
+        from cultagent.cloud.guild_payloads import build_live_body
+
+        payload = body if body is not None else build_live_body(
+            workload_id=str(workload_id or ""),
+            personal_server_id=str(server_id),
+            reported_state=reported_state,
+            minecraft_version=minecraft_version,
+            player_count=player_count,
+            max_players=max_players,
+            tps=tps,
+            mspt=mspt,
+            world=world,
+            server_facet=server_facet,
+            players=players,
+            events=events,
+        )
+        return await self._request(
+            "POST",
+            f"/v1/agent/personal/servers/{server_id}/live",
+            agent_token=agent_token,
+            json_body=payload,
+        )
+
+    async def post_score_batch(
+        self,
+        agent_token: str,
+        *,
+        agent_node_id: str,
+        batch_id: str,
+        batch_seq: int,
+        session_fingerprint: str,
+        observed_at: str,
+        players: list[dict[str, Any]] | None = None,
+        deltas: list[dict[str, Any]] | None = None,
+        guild_server_id: str | None = None,
+        personal_server_id: str | None = None,
+        guild_id: str | None = None,
+        workload_id: str | None = None,
+        binding_id: str | None = None,
+        local_server_id: str | None = None,
+        server_facet: dict[str, Any] | None = None,
+        facet: dict[str, Any] | None = None,
+        agent_version: str | None = None,
+    ) -> dict[str, Any]:
+        """POST /v1/agent/score/batch — competitive raw deltas (API owns formula)."""
+        from cultagent.cloud.guild_payloads import build_score_batch_body
+
+        return await self._request(
+            "POST",
+            "/v1/agent/score/batch",
+            agent_token=agent_token,
+            json_body=build_score_batch_body(
+                agent_node_id=agent_node_id,
+                players=players,
+                deltas=deltas,
+                batch_id=batch_id,
+                batch_seq=batch_seq,
+                session_fingerprint=session_fingerprint,
+                observed_at=observed_at,
+                guild_server_id=guild_server_id,
+                personal_server_id=personal_server_id,
+                guild_id=guild_id,
+                workload_id=workload_id,
+                binding_id=binding_id,
+                local_server_id=local_server_id,
+                server_facet=server_facet or facet,
+                agent_version=agent_version,
+            ),
+        )
+
     async def get_agent_commands_schema(
         self, agent_token: str
     ) -> dict[str, Any]:
@@ -701,6 +832,7 @@ class CultForgeClient:
         network_mode: str | None = None,
         clear_tunnel: bool = False,
         raw_public: dict[str, Any] | None = None,
+        server_facet: dict[str, Any] | None = None,
         body: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """POST /v1/agent/personal/servers/{server_id}/runtime."""
@@ -720,6 +852,7 @@ class CultForgeClient:
             network_mode=network_mode,
             clear_tunnel=clear_tunnel,
             raw_public=raw_public,
+            server_facet=server_facet,
         )
         return await self._request(
             "POST",

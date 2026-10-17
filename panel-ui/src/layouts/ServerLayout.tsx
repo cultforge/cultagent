@@ -7,6 +7,7 @@ import { PageHeader } from "../components/PageHeader";
 import { ServerActions } from "../components/ServerActions";
 import { ServerStatsStrip } from "../components/ServerStatsStrip";
 import { ServerTabs } from "../components/ServerTabs";
+import { runServerAction } from "../lib/actionLatency";
 
 export type ServerOutlet = ShellOutlet & {
   detail: ServerDetail | null;
@@ -50,8 +51,11 @@ export function ServerLayout() {
   async function act(action: "start" | "stop" | "restart") {
     setBusy(true);
     try {
-      await cultApi.action(serverId, action);
-      setFlash({ msg: `${action} requested`, ok: true });
+      await runServerAction(action, () => cultApi.action(serverId, action));
+      setFlash({
+        msg: action === "start" ? "Starting…" : `${action} requested`,
+        ok: true,
+      });
       await refresh();
     } catch (e) {
       setFlash({ msg: humanizeError(e), ok: false });

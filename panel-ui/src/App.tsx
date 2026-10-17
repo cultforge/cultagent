@@ -9,6 +9,7 @@ import { ConfigPage } from "./pages/ConfigPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { FilesPage } from "./pages/FilesPage";
 import { MetricsPage } from "./pages/MetricsPage";
+import { ModConfigPage } from "./pages/ModConfigPage";
 import { ModsPage } from "./pages/ModsPage";
 import { NetworkPage } from "./pages/NetworkPage";
 import { NewServerPage } from "./pages/NewServerPage";
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="console" element={<TerminalPage />} />
           <Route path="files" element={<FilesPage />} />
           <Route path="config" element={<ConfigPage />} />
+          <Route path="mod-config" element={<ModConfigPage />} />
           <Route path="tuner" element={<TunerPage />} />
           <Route path="backups" element={<BackupsPage />} />
           <Route path="mods" element={<ModsPage />} />

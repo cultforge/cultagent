@@ -233,12 +233,15 @@ class BuildsOrchestrator:
         force_platform: bool = False,
         accept_eula: bool = True,
         loader_version: str | None = None,
+        resolve_deps: bool = False,
     ) -> dict[str, Any]:
         """Shoot a chambered build: install server platform, then content files.
 
         Guild manifests are content-only (mods / packs). The Minecraft *server*
         jar + Forge/NeoForge libraries come from the local installer, not the
-        cloud file list.
+        cloud file list. Content files use pinned URLs/hashes from the
+        manifest — Modrinth "latest" is not re-resolved unless
+        ``resolve_deps=True``.
         """
         record = await self.app.servers.get(server_id)
         if record is None:
@@ -314,6 +317,7 @@ class BuildsOrchestrator:
             cache_dir=self.app.paths.cache_dir,
             loader=loader,
             game_version=mc,
+            resolve_deps=resolve_deps,
         )
         # Sync chambered magazine metadata onto the local server record
         record = await self.app.servers.get(server_id)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -154,6 +155,64 @@ async def server_console_execute(ctx: CommandContext) -> dict[str, Any]:
         extra={"command": str(command)[:200]},
     )
     return await ctx.app.servers.console_execute(server_id, str(command))
+
+
+def _player_target(ctx: CommandContext) -> str:
+    name = (
+        ctx.params.get("minecraft_name")
+        or ctx.params.get("player")
+        or ctx.params.get("name")
+        or ctx.params.get("user_id")
+        or ctx.params.get("username")
+    )
+    if not name or not str(name).strip():
+        raise ValueError("minecraft_name (or player/user_id) required")
+    # Minecraft names: alphanumeric + underscore, ≤16 — reject injection
+    text = str(name).strip()
+    if not re.fullmatch(r"[A-Za-z0-9_]{1,16}", text):
+        raise ValueError(f"invalid player name: {text!r}")
+    return text
+
+
+async def server_player_kick(ctx: CommandContext) -> dict[str, Any]:
+    """Kick a player via console: ``kick <name> [reason]``."""
+    assert ctx.app is not None
+    server_id = _server_id(ctx)
+    player = _player_target(ctx)
+    reason = str(ctx.params.get("reason") or "").strip()
+    # Strip control chars from reason; keep it as a single console arg
+    reason = re.sub(r"[\r\n\x00]", " ", reason)[:120]
+    line = f"kick {player}"
+    if reason:
+        line = f"kick {player} {reason}"
+    await ctx.app.audit.record(
+        actor_id=ctx.actor_id,
+        resource_id=server_id,
+        operation="server.player.kick",
+        extra={"player": player, "reason": reason or None},
+    )
+    result = await ctx.app.servers.console_execute(server_id, line)
+    return {"ok": True, "action": "kick", "player": player, "console": result}
+
+
+async def server_player_ban(ctx: CommandContext) -> dict[str, Any]:
+    """Ban a player via console: ``ban <name> [reason]`` (high-risk)."""
+    assert ctx.app is not None
+    server_id = _server_id(ctx)
+    player = _player_target(ctx)
+    reason = str(ctx.params.get("reason") or "").strip()
+    reason = re.sub(r"[\r\n\x00]", " ", reason)[:120]
+    line = f"ban {player}"
+    if reason:
+        line = f"ban {player} {reason}"
+    await ctx.app.audit.record(
+        actor_id=ctx.actor_id,
+        resource_id=server_id,
+        operation="server.player.ban",
+        extra={"player": player, "reason": reason or None},
+    )
+    result = await ctx.app.servers.console_execute(server_id, line)
+    return {"ok": True, "action": "ban", "player": player, "console": result}
 
 
 async def server_config_read(ctx: CommandContext) -> dict[str, Any]:
@@ -322,6 +381,7 @@ async def builds_install(ctx: CommandContext) -> dict[str, Any]:
         force_platform=bool(ctx.params.get("force_platform", False)),
         accept_eula=ctx.params.get("accept_eula", True) is not False,
         loader_version=ctx.params.get("loader_version"),
+        resolve_deps=bool(ctx.params.get("resolve_deps", False)),
     )
 
 
@@ -342,7 +402,7 @@ async def server_refresh(ctx: CommandContext) -> dict[str, Any]:
         build_id=str(ctx.params["build_id"]) if ctx.params.get("build_id") else None,
         include_optional=bool(ctx.params.get("include_optional", False)),
         prune=ctx.params.get("prune", True) is not False,
-        resolve_deps=ctx.params.get("resolve_deps", True) is not False,
+        resolve_deps=bool(ctx.params.get("resolve_deps", False)),
         install_platform=bool(ctx.params.get("install_platform", False)),
     )
 
@@ -1223,6 +1283,8 @@ def register_all(registry: CommandRegistry) -> None:
     registry.register("server.refresh", server_refresh)
     registry.register("server.console.read", server_console_read)
     registry.register("server.console.execute", server_console_execute)
+    registry.register("server.player.kick", server_player_kick)
+    registry.register("server.player.ban", server_player_ban)
     registry.register("server.config.read", server_config_read)
     registry.register("server.config.update", server_config_update)
     registry.register("server.backup.create", server_backup_create)

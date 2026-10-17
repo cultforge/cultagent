@@ -41,6 +41,11 @@ _RE_DEATH = re.compile(
     r"withstood|was doomed|died)\b",
     re.I,
 )
+_RE_DEATH_KILLER = re.compile(
+    r"\b(?:was slain by|was shot by|was blown up by|was killed by|"
+    r"was fireballed by|was pummeled by)\s+(?P<killer>[A-Za-z0-9_ :.-]{1,64})",
+    re.I,
+)
 _RE_ADVANCEMENT = re.compile(
     r"(?P<name>[A-Za-z0-9_]{1,16}) has (?:made the advancement|completed the challenge|"
     r"reached the goal) (?:\[(?P<title>[^\]]+)\]|(?P<title2>.+))$",
@@ -112,6 +117,8 @@ class ServerPresence:
                 row["minecraft_uuid"] = uuid
             if meta.get("joined_at"):
                 row["joined_at"] = meta["joined_at"]
+            if isinstance(meta.get("session_stats"), dict) and meta["session_stats"]:
+                row["session_stats"] = dict(meta["session_stats"])
             rows.append(row)
         return rows
 
@@ -190,14 +197,27 @@ class PresenceTracker:
         m = _RE_LEAVE.search(line)
         if m:
             name = m.group("name")
+            payload: dict[str, Any] = {}
             if name in sp.online:
-                sp.online.pop(name, None)
+                meta = sp.online.pop(name, None) or {}
                 sp.dirty_roster = True
+                joined = meta.get("joined_at")
+                if joined:
+                    try:
+                        t0 = datetime.fromisoformat(str(joined).replace("Z", "+00:00"))
+                        t1 = datetime.fromisoformat(now.replace("Z", "+00:00"))
+                        secs = max(0, int((t1 - t0).total_seconds()))
+                        # Cap absurd clock skew; treat < 5s bursts as non-AFK session slice
+                        if secs >= 5:
+                            payload["playtime_seconds"] = secs
+                    except ValueError:
+                        pass
             out.append(
                 PresenceEvent(
                     event_type="player.left",
                     minecraft_name=name,
                     at=now,
+                    payload=payload,
                 )
             )
             return out
@@ -221,12 +241,34 @@ class PresenceTracker:
         m = _RE_DEATH.search(line)
         if m:
             name = m.group("name")
+            payload: dict[str, Any] = {"line": line[-200:], "cause": "mob"}
+            low = line.lower()
+            if "fell" in low or "hit the ground" in low:
+                payload["cause"] = "fall"
+            elif "drown" in low:
+                payload["cause"] = "drown"
+            elif "lava" in low or "flame" in low or "fire" in low or "burn" in low:
+                payload["cause"] = "fire"
+            elif "starv" in low:
+                payload["cause"] = "starve"
+            km = _RE_DEATH_KILLER.search(line)
+            if km:
+                killer = (km.group("killer") or "").strip()
+                # Strip trailing "using …"
+                if " using " in killer.lower():
+                    killer = killer[: killer.lower().index(" using ")].strip()
+                if killer:
+                    payload["killer"] = killer
+                    payload["cause"] = "mob"
+            if name in sp.online:
+                sess = sp.online[name].setdefault("session_stats", {})
+                sess["deaths"] = int(sess.get("deaths") or 0) + 1
             out.append(
                 PresenceEvent(
                     event_type="player.died",
                     minecraft_name=name,
                     at=now,
-                    payload={"line": line[-200:]},
+                    payload=payload,
                 )
             )
             return out
@@ -270,6 +312,12 @@ class PresenceTracker:
             while sp.pending_events and len(out) < limit:
                 out.append(sp.pending_events.popleft().to_api())
             return out
+
+    def peek_events(self, server_id: str, *, limit: int = 20) -> list[dict[str, Any]]:
+        """Non-destructive view for live share (guild events drain owns the queue)."""
+        sp = self.for_server(server_id)
+        with self._lock:
+            return [ev.to_api() for ev in list(sp.pending_events)[:limit]]
 
     def snapshot(self, server_id: str) -> dict[str, Any]:
         sp = self.for_server(server_id)

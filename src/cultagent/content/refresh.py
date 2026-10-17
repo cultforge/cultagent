@@ -102,10 +102,13 @@ async def refresh_server_from_manifest(
     build_id: str | None = None,
     include_optional: bool = False,
     prune: bool = True,
-    resolve_deps: bool = True,
+    resolve_deps: bool = False,
     install_platform: bool = False,
 ) -> dict[str, Any]:
-    """Sync chambered build content: install missing, prune extras, dedupe deps."""
+    """Sync chambered build content: install missing, prune extras, dedupe deps.
+
+    Honors pinned manifest ``files[]`` by default (``resolve_deps=False``).
+    """
     record = await app.servers.get(server_id)
     if record is None:
         raise KeyError(f"unknown server: {server_id}")
@@ -131,6 +134,7 @@ async def refresh_server_from_manifest(
         install_platform=install_platform,
         force_platform=False,
         accept_eula=True,
+        resolve_deps=resolve_deps,
     )
     manifest = await app.builds.get_manifest(str(bid))
     expected = expected_content_paths(

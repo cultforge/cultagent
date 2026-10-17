@@ -19,6 +19,7 @@ import {
   type JoinInfo,
 } from "../lib/api";
 import { fleetStats, formatUptime, isRunning } from "../lib/servers";
+import { runServerAction } from "../lib/actionLatency";
 import { IconCpu, IconNetwork, IconPlus, IconServer, IconUsers } from "../components/Icons";
 
 const WORKERS = ["api", "auth", "guilds", "invite"] as const;
@@ -140,8 +141,11 @@ export function DashboardPage() {
   async function act(id: string, action: "start" | "stop" | "restart") {
     setBusyId(id);
     try {
-      await cultApi.action(id, action);
-      setFlash({ msg: `${action} requested`, ok: true });
+      await runServerAction(action, () => cultApi.action(id, action));
+      setFlash({
+        msg: action === "start" ? "Starting…" : `${action} requested`,
+        ok: true,
+      });
       await refresh();
     } catch (e) {
       setFlash({ msg: e instanceof Error ? e.message : String(e), ok: false });

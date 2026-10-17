@@ -253,8 +253,8 @@ export function Shell() {
           </div>
         </header>
 
-        <main className="min-h-0 flex-1 overflow-auto px-4 py-5 lg:px-8 lg:py-7">
-          <div className="mx-auto max-w-[1120px]">
+        <main className="cf-spatial-shell min-h-0 flex-1 overflow-auto px-4 py-5 lg:px-8 lg:py-7">
+          <div className="mx-auto max-w-[1180px]">
             {flash && (
               <div
                 className={[

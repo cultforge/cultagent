@@ -374,3 +374,84 @@ async def test_build_install_ensures_platform(tmp_path: Path, monkeypatch: pytes
     assert result2["ok"] is True
     assert result2["data"]["platform"]["skipped"] is True
     assert "loader" not in called  # install_loader not called
+
+
+@pytest.mark.asyncio
+async def test_install_manifest_fails_on_required_unresolved(tmp_path: Path) -> None:
+    """Pinned builds must not silently skip required unresolved mods."""
+    server = tmp_path / "srv"
+    manifest = {
+        "schema_version": 1,
+        "build_id": "bld_bad",
+        "mode": "resolved",
+        "minecraft_version": "1.20.1",
+        "loader": "forge",
+        "files": [
+            {
+                "path": "mods/ok.jar",
+                "urls": ["https://example.invalid/ok.jar"],
+                "sha256": "abc",
+                "kind": "mod",
+                "env": "both",
+            }
+        ],
+        "unresolved": [
+            {"slug": "missing-mod", "reason": "version_not_found"},
+            {"slug": "optional-skip", "reason": "gone", "optional": True},
+        ],
+        "warnings": [],
+    }
+    result = await install_manifest(manifest, server)
+    assert result["ok"] is False
+    assert any("unresolved pinned" in e for e in result["errors"])
+    assert any("missing-mod" in e for e in result["errors"])
+    assert not (server / "mods").exists()
+
+
+@pytest.mark.asyncio
+async def test_deploy_cloud_manifest_rejects_unresolved(tmp_path: Path) -> None:
+    from cultagent.content import BuildService
+    from cultagent.settings import ContentSection
+
+    svc = BuildService(ContentSection())
+    manifest = {
+        "mode": "resolved",
+        "files": [
+            {
+                "path": "mods/a.jar",
+                "urls": ["https://example.invalid/a.jar"],
+                "sha256": "deadbeef",
+            }
+        ],
+        "unresolved": [{"slug": "broken-pin", "reason": "no_version"}],
+    }
+    result = await svc.deploy_cloud_manifest(manifest, tmp_path / "srv")
+    assert result["ok"] is False
+    assert any("unresolved" in e.lower() for e in result["errors"])
+
+
+@pytest.mark.asyncio
+async def test_install_manifest_sha512_already_present(tmp_path: Path) -> None:
+    body = b"sha512-mod"
+    digest512 = hashlib.sha512(body).hexdigest()
+    server = tmp_path / "srv"
+    mods = server / "mods"
+    mods.mkdir(parents=True)
+    (mods / "demo.jar").write_bytes(body)
+    manifest = {
+        "mode": "resolved",
+        "build_id": "bld_h",
+        "files": [
+            {
+                "path": "mods/demo.jar",
+                "urls": ["https://example.invalid/demo.jar"],
+                "sha512": digest512,
+                "kind": "mod",
+                "env": "both",
+            }
+        ],
+        "unresolved": [],
+    }
+    result = await install_manifest(manifest, server)
+    assert result["ok"] is True
+    assert any(s.get("reason") == "already_present" for s in result["skipped"])

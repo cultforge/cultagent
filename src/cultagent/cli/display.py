@@ -96,12 +96,58 @@ def _looks_like_build_install(data: dict[str, Any]) -> bool:
     return False
 
 
+def print_server_power(data: dict[str, Any], *, command: str = "") -> None:
+    """Dedicated start/stop/restart summary (state, port, join hint)."""
+    from rich.panel import Panel
+    from rich.table import Table
+    from rich.text import Text
+
+    state = str(
+        data.get("state")
+        or (data.get("status") or {}).get("state")
+        or data.get("reported_state")
+        or "?"
+    )
+    sid = str(data.get("server_id") or data.get("local_server_id") or "")
+    name = str(data.get("name") or "")
+    port = data.get("port")
+    join = data.get("join_address") or data.get("address")
+    pid = data.get("pid")
+    tbl = Table(show_header=False, box=None, padding=(0, 1))
+    tbl.add_column(style="dim")
+    tbl.add_column()
+    if name:
+        tbl.add_row("name", name)
+    if sid:
+        tbl.add_row("server", Text(sid, style="cyan"))
+    style = "bold green" if state in {"running", "starting"} else (
+        "bold yellow" if state in {"stopping"} else "bold"
+    )
+    tbl.add_row("state", Text(state, style=style))
+    if port is not None:
+        tbl.add_row("port", str(port))
+    if join:
+        tbl.add_row("join", Text(str(join), style="bold"))
+    if pid:
+        tbl.add_row("pid", str(pid))
+    title = command.replace("server.", "").title() if command else "Server"
+    console.print(Panel(tbl, title=title, border_style="cyan"))
+
+
 def print_result(result: dict[str, Any]) -> None:
     """Render a command dispatch result."""
     if capture_json_enabled():
         print_json_payload(result)
         return
     data = result.get("data")
+    cmd = str(result.get("command") or "")
+    if cmd in {"server.start", "server.stop", "server.restart"} and isinstance(data, dict):
+        print_server_power(data, command=cmd)
+        if not result.get("ok", True):
+            err = result.get("error") or result.get("detail")
+            if err:
+                console.print(Text(str(err), style="red"))
+        return
     if isinstance(data, dict) and _looks_like_build_manifest(data):
         print_build_manifest(data)
         if not result.get("ok", True):

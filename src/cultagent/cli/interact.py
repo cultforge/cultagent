@@ -209,6 +209,17 @@ def install_progress_ui(title: str = "Installing build"):
             total_files = int(event.get("total_files") or 0)
             desc = f"{title} ({total_files} files)" if total_files else title
             _ensure_task(description=desc, total=total_files or None)
+        elif et == "file_hash_start":
+            path = str(event.get("path") or "")
+            algo = str(event.get("algo") or "hash")
+            if task_id is not None:
+                progress.update(task_id, detail=f"verify {algo} {_short(path, 24)}")
+        elif et == "file_hash_ok":
+            path = str(event.get("path") or "")
+            reason = str(event.get("reason") or "ok")
+            if task_id is not None:
+                label = "hash ok" if reason == "already_present" else "verified"
+                progress.update(task_id, detail=f"{label} {_short(path, 28)}")
         elif et == "file_begin":
             path = str(event.get("path") or "")
             if task_id is not None:
@@ -239,6 +250,11 @@ def install_progress_ui(title: str = "Installing build"):
                 progress.update(
                     task_id,
                     completed=min(files_done, total_files),
+                    detail=(
+                        f"hash ok {_short(str(event.get('path') or ''), 28)}"
+                        if reason == "already_present"
+                        else ""
+                    ),
                 )
         elif et in ("file_done", "file_error"):
             files_done += 1

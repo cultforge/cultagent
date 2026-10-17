@@ -76,6 +76,18 @@ class PersonalOrchestrator:
     ) -> dict[str, Any]:
         self._require_personal_mode()
         binding = self._require_bound(server_id)
+        if not self.app.bindings.is_primary_binding(binding):
+            logger.info(
+                "skip personal tunnel for %s — not primary (avoids 403 spam)",
+                server_id,
+            )
+            return {
+                "ok": True,
+                "skipped": True,
+                "reason": "not_primary",
+                "server_id": server_id,
+                "scope": "personal",
+            }
         wl = workload_id or binding.get("workload_id")
 
         if clear_tunnel:

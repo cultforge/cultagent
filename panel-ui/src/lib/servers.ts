@@ -63,6 +63,7 @@ export const SERVER_TABS = [
   { id: "console", label: "Terminal", path: (id: string) => `/servers/${id}/console` },
   { id: "files", label: "Files", path: (id: string) => `/servers/${id}/files` },
   { id: "config", label: "Config", path: (id: string) => `/servers/${id}/config` },
+  { id: "mod-config", label: "Mod cfg", path: (id: string) => `/servers/${id}/mod-config` },
   { id: "tuner", label: "Tuner", path: (id: string) => `/servers/${id}/tuner` },
   { id: "backups", label: "Backups", path: (id: string) => `/servers/${id}/backups` },
   { id: "mods", label: "Mods", path: (id: string) => `/servers/${id}/mods` },

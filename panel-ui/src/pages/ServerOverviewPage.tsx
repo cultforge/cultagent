@@ -93,9 +93,11 @@ export function ServerOverviewPage() {
     ],
   ];
 
+  const players = detail.players || [];
+
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 lg:grid-cols-[1.25fr_0.85fr]">
+    <div className="cf-spatial-stage space-y-4">
+      <div className="cf-spatial-hero grid gap-3 lg:grid-cols-[1.25fr_0.85fr]">
         <div className="grid gap-3 sm:grid-cols-3">
           <MeterCard
             label="Host CPU"
@@ -125,7 +127,35 @@ export function ServerOverviewPage() {
         />
       </div>
 
-      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(240px,0.9fr)_minmax(0,1.4fr)]">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(200px,0.7fr)_minmax(240px,0.9fr)_minmax(0,1.4fr)]">
+        <div className="cf-panel cf-spatial-rail min-w-0 p-4">
+          <h2 className="m-0 text-[13px] font-medium">Players</h2>
+          <p className="m-0 mt-1 text-[11px] text-muted">Live roster</p>
+          {!players.length ? (
+            <p className="mt-3 text-[12px] text-muted">None online</p>
+          ) : (
+            <ul className="mt-3 m-0 list-none space-y-1.5 p-0">
+              {players.map((p) => {
+                const name = p.minecraft_name || p.name || "?";
+                return (
+                  <li
+                    key={name}
+                    className="rounded-md border border-border/80 bg-card-2/30 px-2 py-1.5 text-[12px]"
+                  >
+                    <span className="font-medium">{name}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <Link
+            to={`/servers/${serverId}/admin`}
+            className="mt-3 inline-block text-[12px] text-text-dim hover:text-neon"
+          >
+            Manage →
+          </Link>
+        </div>
+
         <div className="cf-panel min-w-0 p-5">
           <h2 className="m-0 text-[13px] font-medium">Server information</h2>
           <dl className="mt-3 grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-3 gap-y-2.5 text-[13px]">
@@ -138,15 +168,15 @@ export function ServerOverviewPage() {
           </dl>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button href={`/panel/servers/${serverId}/config`}>Config</Button>
+            <Button href={`/panel/servers/${serverId}/mod-config`}>Mod cfg</Button>
             <Button href={`/panel/servers/${serverId}/tuner`}>Tuner</Button>
             <Button href={`/panel/servers/${serverId}/mods`}>Mods</Button>
-            <Button href="/panel/builds">Builds</Button>
           </div>
         </div>
 
-        <div className="cf-panel flex h-[360px] min-w-0 flex-col overflow-hidden p-5">
+        <div className="cf-panel cf-spatial-console flex h-[360px] min-w-0 flex-col overflow-hidden p-5">
           <div className="flex shrink-0 items-center justify-between gap-2">
-            <h2 className="m-0 text-[13px] font-medium">Console</h2>
+            <h2 className="m-0 text-[13px] font-medium">Console dock</h2>
             <Link
               to={`/servers/${serverId}/console`}
               className="text-[12px] text-text-dim hover:text-neon"

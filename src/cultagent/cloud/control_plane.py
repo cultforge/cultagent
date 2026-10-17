@@ -29,6 +29,9 @@ class ControlPlane:
         self._read_cache: dict[str, tuple[float, dict[str, Any]]] = {}
         self._READ_CACHE_TTL = 8.0
         self._READ_ACTIONS = frozenset({"server.status", "server.console.read"})
+        from cultagent.cloud.live_share import LiveSharePublisher
+
+        self.live_share = LiveSharePublisher(app)
 
     @property
     def poll_interval(self) -> int:
@@ -186,10 +189,35 @@ class ControlPlane:
                 logger.debug("guild presence sync failed: %s", exc)
                 summary["presence_error"] = str(exc)
 
+            try:
+                score = await self._flush_score_batches(token)
+                summary["score"] = score
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("score batch flush failed: %s", exc)
+                summary["score_error"] = str(exc)
+
+            try:
+                live = await self.live_share.flush(token)
+                summary["live"] = live
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("live share flush failed: %s", exc)
+                summary["live_error"] = str(exc)
+
         if summary.get("heartbeat") and summary.get("telemetry"):
             self._clear_backoff()
 
         return summary
+
+    async def flush_live_share(self) -> dict[str, Any]:
+        """Dedicated cadence entry (3–10s) — skips when unregistered/backoff."""
+        token = self._token()
+        if not token or self._in_backoff():
+            return {"skipped": True}
+        try:
+            return await self.live_share.flush(token)
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("live share loop failed: %s", exc)
+            return {"skipped": True, "error": str(exc)}
 
     def _bound_server_label(self, cloud_id: str) -> str:
         for row in self.app.bindings.servers:
@@ -495,30 +523,42 @@ class ControlPlane:
                 or binding.get("local_server_id")
                 or binding.get("resource_id")
             )
-            # Only publish a public join address when this agent is actually
-            # hosting the bound local process (or clearing tunnel on stop).
+            # Only publish a public join address when this agent is the primary
+            # host and the bound local process is actually running.
+            is_primary = self.app.bindings.is_primary_binding(binding)
             hosting = False
             if local_id:
                 try:
                     hosting = self.app.servers.is_process_running(str(local_id))
                 except Exception:  # noqa: BLE001
                     hosting = False
-            publish_tunnel = bool(tunnel_host) and hosting
+            # Standby / non-primary: never write tunnel (API returns 403).
+            publish_tunnel = bool(tunnel_host) and hosting and is_primary
             clear_tunnel = bool(
-                (not hosting)
+                is_primary
+                and (not hosting)
                 and (
                     reported_state in {"stopped", "missing", "offline"}
                     or item.get("network_mode") == "direct"
                 )
             )
+            if not is_primary:
+                logger.debug(
+                    "skip tunnel for workload %s — not primary (standby)",
+                    workload_id,
+                )
 
             mc_version = None
             player_count: int | None = None
+            server_facet: dict[str, Any] = {}
             if local_id:
                 try:
                     rec = await self.app.servers.get(str(local_id))
                     if rec:
                         mc_version = rec.minecraft_version
+                        from cultagent.cloud.scoring import read_server_facet
+
+                        server_facet = read_server_facet(rec.path, record=rec)
                 except Exception:  # noqa: BLE001
                     pass
                 try:
@@ -540,8 +580,13 @@ class ControlPlane:
                         player_count=player_count,
                         tunnel_address=tunnel_host if publish_tunnel else None,
                         tunnel_port=tunnel_port if publish_tunnel else None,
-                        network_mode="playit" if publish_tunnel else "direct",
+                        network_mode=(
+                            "playit"
+                            if publish_tunnel
+                            else ("direct" if clear_tunnel else None)
+                        ),
                         clear_tunnel=clear_tunnel and not publish_tunnel,
+                        server_facet=server_facet,
                     )
                 except CloudError as exc:
                     logger.debug("personal runtime upsert skipped: %s", exc)
@@ -562,17 +607,28 @@ class ControlPlane:
 
             if scope != "personal" and guild_server_id:
                 try:
-                    await self.client.upsert_guild_runtime(
-                        token,
+                    from cultagent.cloud.guild_payloads import build_runtime_body
+
+                    runtime_body = build_runtime_body(
                         workload_id=str(workload_id),
                         state=reported_state,
                         player_count=player_count,
                         tunnel_address=tunnel_host if publish_tunnel else None,
                         tunnel_port=tunnel_port if publish_tunnel else None,
-                        network_mode="playit" if publish_tunnel else "direct",
+                        network_mode=(
+                            "playit"
+                            if publish_tunnel
+                            else ("direct" if clear_tunnel else None)
+                        ),
                         clear_tunnel=clear_tunnel and not publish_tunnel,
                         guild_server_id=str(guild_server_id),
                         local_server_id=str(local_id) if local_id else None,
+                        extra={"server_facet": server_facet} if server_facet else {"server_facet": {}},
+                    )
+                    await self.client.upsert_guild_runtime(
+                        token,
+                        workload_id=str(workload_id),
+                        body=runtime_body,
                     )
                 except CloudError as exc:
                     logger.debug("guild runtime upsert skipped: %s", exc)
@@ -589,6 +645,7 @@ class ControlPlane:
                             tunnel_meta={"provider": "playit"},
                         )
                     except CloudError as exc:
+                        # Non-primary 403 should not happen (gated above); log once.
                         logger.debug("guild tunnel override skipped: %s", exc)
 
     async def _sync_guild_presence(self, token: str) -> dict[str, Any]:
@@ -660,11 +717,143 @@ class ControlPlane:
                     ev.setdefault("workload_id", str(workload_id))
                     if cloud_id:
                         ev.setdefault("guild_server_id", str(cloud_id))
+                # Competitive raw deltas (primary + stats_eligible flush later).
+                try:
+                    from cultagent.cloud.scoring import get_score_buffer
+
+                    get_score_buffer().enqueue_events(local_id, events)
+                except Exception as exc:  # noqa: BLE001
+                    logger.debug("score enqueue skipped: %s", exc)
                 try:
                     await self.client.append_guild_events(token, events=events)
                     summary["events"] = int(summary["events"]) + len(events)
                 except CloudError as exc:
                     logger.debug("append_guild_events skipped: %s", exc)
+
+        return summary
+
+    async def _flush_score_batches(self, token: str) -> dict[str, Any]:
+        """POST /v1/agent/score/batch for primary stats-eligible guild servers."""
+        import uuid
+        from datetime import datetime, timezone
+
+        from cultagent.cloud.scoring import get_score_buffer, read_server_facet
+
+        buf = get_score_buffer()
+        identity = self.app.identity_store.load_identity()
+        node_id = ""
+        if identity is not None:
+            node_id = str(identity.cloud_node_id or identity.node_id or "")
+        summary: dict[str, Any] = {
+            "servers": 0,
+            "batches": 0,
+            "deltas": 0,
+            "fallback_stats": 0,
+            "rejected": 0,
+        }
+        if not node_id:
+            return summary
+
+        for binding in self.app.bindings.stats_eligible_bindings():
+            cloud_id = self.app.bindings.cloud_server_id(binding)
+            workload_id = binding.get("workload_id")
+            if not cloud_id:
+                continue
+            local_id = self.app.servers.resolve_local_id(str(cloud_id))
+            if not local_id:
+                local_id = str(
+                    binding.get("local_server_id") or binding.get("resource_id") or ""
+                ).strip() or None
+            if not local_id:
+                continue
+            if buf.pending_count(local_id) <= 0:
+                continue
+
+            summary["servers"] = int(summary["servers"]) + 1
+            deltas, batch_seq, fingerprint = buf.drain(local_id)
+            if not deltas:
+                continue
+
+            facet: dict[str, Any] | None = None
+            try:
+                rec = await self.app.servers.get(str(local_id))
+                if rec is not None:
+                    facet = read_server_facet(rec.path, record=rec)
+            except Exception:  # noqa: BLE001
+                facet = None
+
+            observed_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            batch_id = str(uuid.uuid4())
+            binding_id = str(binding.get("id") or binding.get("binding_id") or "") or None
+            guild_id = None
+            if identity is not None and identity.guild_id:
+                guild_id = str(identity.guild_id)
+            from cultagent import __version__ as agent_ver
+            from cultagent.cloud.scoring import aggregate_deltas_to_players
+
+            players = aggregate_deltas_to_players(deltas)
+            if not players:
+                continue
+
+            try:
+                await self.client.post_score_batch(
+                    token,
+                    agent_node_id=node_id,
+                    players=players,
+                    deltas=deltas,
+                    batch_id=batch_id,
+                    batch_seq=batch_seq,
+                    session_fingerprint=fingerprint,
+                    observed_at=observed_at,
+                    guild_server_id=str(cloud_id),
+                    guild_id=guild_id,
+                    workload_id=str(workload_id) if workload_id else None,
+                    binding_id=binding_id,
+                    local_server_id=str(local_id),
+                    server_facet=facet,
+                    agent_version=str(agent_ver),
+                )
+                summary["batches"] = int(summary["batches"]) + 1
+                summary["deltas"] = int(summary["deltas"]) + len(deltas)
+                continue
+            except CloudError as exc:
+                detail = str(exc).lower()
+                if exc.status_code == 404:
+                    # Legacy fallback: roll deltas into guild/stats shape when possible.
+                    stats_rows: list[dict[str, Any]] = []
+                    for d in deltas:
+                        uuid_val = d.get("minecraft_uuid")
+                        if not uuid_val:
+                            continue
+                        stats_rows.append(
+                            {
+                                "minecraft_uuid": uuid_val,
+                                "minecraft_name": d.get("minecraft_name"),
+                                "event_kind": d.get("kind"),
+                                "at": d.get("at"),
+                            }
+                        )
+                    if stats_rows:
+                        try:
+                            await self.client.upsert_guild_stats(
+                                token, stats=stats_rows
+                            )
+                            summary["fallback_stats"] = int(
+                                summary["fallback_stats"]
+                            ) + len(stats_rows)
+                            continue
+                        except CloudError as stats_exc:
+                            logger.debug("guild/stats fallback failed: %s", stats_exc)
+                if exc.status_code in {401, 403} or "guild_not_verified" in detail or "no_primary" in detail:
+                    summary["rejected"] = int(summary["rejected"]) + 1
+                    logger.info(
+                        "score batch rejected (verified/primary gate): %s — hosting continues",
+                        exc,
+                    )
+                    continue
+                logger.debug("score batch failed: %s", exc)
+                # Re-queue on transient failure
+                buf.enqueue(local_id, deltas)
 
         return summary
 
